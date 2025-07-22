@@ -221,12 +221,12 @@ if ticker_input:
                 st.markdown("Adjust price shock (%) for each ticker to simulate the effect on your portfolio:")
     
     # Sliders for shocks
-            shock_cols = st.columns(len(tickers))
-            price_shocks = {}
-            for i, t in enumerate(tickers):
-                price_shocks[t] = shock_cols[i].slider(f"{t} shock (%)", min_value=-20, max_value=20, value=0, step=1)
+                shock_cols = st.columns(len(tickers))
+                price_shocks = {}
+                for i, t in enumerate(tickers):
+                    price_shocks[t] = shock_cols[i].slider(f"{t} shock (%)", min_value=-20, max_value=20, value=0, step=1)
     
-            run_scenario = st.form_submit_button("Run Stress Test")
+                run_scenario = st.form_submit_button("Run Stress Test")
 
             if run_scenario:
     # Ensure price array is 1D and numeric
