@@ -129,6 +129,43 @@ if ticker_input:
             st.write(f"• Mean Monthly Log Return: {monthly_mean_change * 100:.2f}%")
             st.write(f"• Mean Yearly Log Return: {yearly_mean_change * 100:.2f}%")
 
+            # --- Custom Benchmark Comparison ---
+            st.subheader("📌 Custom Benchmark Comparison")
+
+# Define benchmark options and corresponding Yahoo Finance tickers
+            benchmark_options = {
+                'S&P 500': '^GSPC',
+                'NASDAQ': '^IXIC',
+                'TSX (Canada)': '^GSPTSE'
+            }
+
+            benchmark_name = st.selectbox("Choose a benchmark to compare:", list(benchmark_options.keys()))
+            benchmark_ticker = benchmark_options[benchmark_name]
+
+# Download benchmark data
+            benchmark_data = yf.download(benchmark_ticker, start=start_date, end=end_date)['Adj Close']
+
+# Calculate benchmark returns
+            benchmark_returns = benchmark_data.pct_change().dropna()
+            benchmark_cum = (1 + benchmark_returns).cumprod()
+
+# Align dates
+            common_index = log_tfsa_returns.index.intersection(benchmark_cum.index)
+            portfolio_cum = (1 + log_tfsa_returns.loc[common_index]).cumprod()
+            benchmark_cum = benchmark_cum.loc[common_index]
+
+# Plot comparison
+            fig_benchmark = go.Figure()
+            fig_benchmark.add_trace(go.Scatter(x=portfolio_cum.index, y=portfolio_cum, name="Portfolio"))
+            fig_benchmark.add_trace(go.Scatter(x=benchmark_cum.index, y=benchmark_cum, name=benchmark_name))
+            fig_benchmark.update_layout(
+                title=f"Portfolio vs {benchmark_name} (Cumulative Returns)",
+                xaxis_title="Date", yaxis_title="Cumulative Value",
+                template="plotly_white"
+            )
+            st.plotly_chart(fig_benchmark, use_container_width=True)
+
+
             st.subheader("Correlation Matrix (Returns)")
             with st.expander("ℹ️ What is a correlation matrix?"):
                 st.write("A correlation matrix displays how correlated each of your assets are to each other")
@@ -214,47 +251,7 @@ if ticker_input:
             rebalance_df = pd.DataFrame({'Units needed to reach optimal portfolio': rebalance_units.round(2)}, index=tickers)
             st.subheader("Suggested Rebalancing")
             st.dataframe(rebalance_df)
-
-            st.subheader("📌 Scenario Analysis / Stress Testing")
-
-            with st.form("scenario_form"):
-                st.markdown("Adjust price shock (%) for each ticker to simulate the effect on your portfolio:")
-    
-    # Sliders for shocks
-                shock_cols = st.columns(len(tickers))
-                price_shocks = {}
-                for i, t in enumerate(tickers):
-                    price_shocks[t] = shock_cols[i].slider(f"{t} shock (%)", min_value=-20, max_value=20, value=0, step=1)
-    
-                run_scenario = st.form_submit_button("Run Stress Test")
-
-            if run_scenario:
-    # Ensure price array is 1D and numeric
-                prices_arr = np.array(prices, dtype=float).flatten()  # <<< THIS LINE FIXES THE ERROR
-                shocked_prices = np.array([prices_arr[i] * (1 + price_shocks[t] / 100) for i, t in enumerate(tickers)])
-                shocked_value = shocked_prices * units_arr
-                shocked_weights = shocked_value / shocked_value.sum()
-                shocked_weighted_beta = shocked_weights * beta.values
-
-    # Create DataFrame
-            scenario_df = pd.DataFrame({
-                'Original Price': prices_arr,
-                'Price Shock (%)': [price_shocks[t] for t in tickers],
-                'Shocked Price': shocked_prices,
-                'Units': units_arr,
-                'Shocked Value': shocked_value,
-                'New Weight': shocked_weights,
-                'Beta': beta.values,
-                'New Weighted Beta': shocked_weighted_beta
-            }, index=tickers)
-
-            scenario_df = scenario_df.round(2)
-
-    # Display results
-            st.dataframe(scenario_df)
-            st.write(f"💼 New Portfolio Value: **${scenario_df['Shocked Value'].sum():,.2f}**")
-            st.write(f"📏 New Portfolio Beta: **{scenario_df['New Weighted Beta'].sum():.2f}**")
-
+            
 
             # --- Monte Carlo Simulation ---
             st.subheader("🎲 Monte Carlo Simulation")
