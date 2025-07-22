@@ -152,6 +152,17 @@ if ticker_input:
             fig2.add_annotation(x=CVaR_pct, y=75, text=f"CVaR 95%: {CVaR_pct:.2f}%", showarrow=True, arrowhead=1, ax=-80)
             st.plotly_chart(fig2, use_container_width=True)
 
+            def compute_drawdown(series):
+                cumulative = (1 + series).cumprod()
+                peak = cumulative.cummax()
+                drawdown = (cumulative - peak) / peak
+                return drawdown
+
+            drawdowns = compute_drawdown(log_tfsa_returns)
+            st.subheader("Drawdown")
+            st.line_chart(drawdowns)
+            st.write(f"📉 Max Drawdown: {drawdowns.min()*100:.2f}%")
+
             # --- Sharpe Ratio ---
             st.subheader("Sharpe Ratio")
             volatility = log_tfsa_returns.rolling(60).std()*np.sqrt(60)
