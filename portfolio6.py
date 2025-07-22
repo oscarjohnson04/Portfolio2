@@ -32,7 +32,7 @@ if ticker_input:
         with st.spinner("Fetching data and computing portfolio..."):
 
             # --- Data Download ---
-            start = dt.datetime(2023, 10, 1)
+            start = dt.datetime(2015, 1, 1)
             end = dt.datetime.now()
             units_arr = np.array([units[t] for t in tickers])
             df = yf.download(['^GSPC'] + tickers, start, end, auto_adjust=True)
