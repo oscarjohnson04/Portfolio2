@@ -156,7 +156,8 @@ if ticker_input:
             st.subheader("🤖 LSTM Forecast")
             monthly_prices = stocklist.Close.resample('ME').last()
             monthly_returns = monthly_prices.pct_change().dropna()
-            weights_arr = np.array([weights[i] if i in monthly_returns.columns else 0 for i in tickers])
+            weights_series = pd.Series(weights, index=tickers)
+            weights_arr = np.array([weights_series[i] if i in monthly_returns.columns else 0 for i in tickers])
             portfolio_monthly_returns = monthly_returns.dot(weights_arr)
 
             def create_sequences(data, seq_length=12):
