@@ -92,6 +92,21 @@ if ticker_input:
             # Display
             st.dataframe(portfolio)
 
+            sector_map = {}
+            for t in tickers:
+                try:
+                    info = yf.Ticker(t).info
+                    sector = info.get('sector', 'Unknown')
+                    sector_map[t] = sector
+                except:
+                    sector_map[t] = 'Unknown'
+
+            sector_df = pd.Series({sector_map[t]: value[i] for i, t in enumerate(tickers)})
+            sector_grouped = sector_df.groupby(sector_df.index).sum()
+
+            st.subheader("Sector Allocation")
+            fig_sector = go.Figure(data=[go.Pie(labels=sector_grouped.index, values=sector_grouped)])
+            st.plotly_chart(fig_sector, use_container_width=True)
 
             # --- Timeline Plot ---
             st.subheader("📈 Portfolio vs S&P 500")
