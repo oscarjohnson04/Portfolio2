@@ -35,7 +35,7 @@ if ticker_input:
             start = dt.datetime(2015, 1, 1)
             end = dt.datetime.now()
             units_arr = np.array([units[t] for t in tickers])
-            df = yf.download(['^GSPC'] + tickers, start, end, auto_adjust=True)
+            df = yf.download(['^GSPC'] + tickers, start, end, multi_level_index = False)
             Close = df['Close'][['^GSPC'] + tickers]
             log_returns = np.log(Close / Close.shift(1)).dropna()
 
