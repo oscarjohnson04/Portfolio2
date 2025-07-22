@@ -211,7 +211,7 @@ if ticker_input:
             opt_val = current_value * pd.Series(cleaned_weights)
             opt_units = opt_val / prices
             rebalance_units = opt_units - units_arr
-            rebalance_df = pd.DataFrame({'Rebalance Units': rebalance_units.round(2)}, index=tickers)
+            rebalance_df = pd.DataFrame({'Units needed to reach optimal portfolio': rebalance_units.round(2)}, index=tickers)
             st.subheader("Suggested Rebalancing")
             st.dataframe(rebalance_df)
 
