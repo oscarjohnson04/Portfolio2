@@ -223,7 +223,7 @@ if ticker_input:
             shock_cols = st.columns(len(tickers))
             price_shocks = {}
             for i, t in enumerate(tickers):
-            price_shocks[t] = shock_cols[i].slider(f"{t} shock (%)", min_value=-20, max_value=20, value=0, step=1)
+                price_shocks[t] = shock_cols[i].slider(f"{t} shock (%)", min_value=-20, max_value=20, value=0, step=1)
 
             # 2. Apply shocks to prices
             shocked_prices = np.array([prices[i] * (1 + price_shocks[t] / 100) for i, t in enumerate(tickers)])
