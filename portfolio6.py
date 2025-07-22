@@ -160,7 +160,7 @@ if ticker_input:
 
             drawdowns = compute_drawdown(log_tfsa_returns)
             st.subheader("Drawdown")
-            fig5 = go.Figure
+            fig5 = go.Figure()
             fig5.add_trace(go.Scatter(x=drawdowns.index, y=drawdowns, name="Drawdowns"))
             fig5.update_layout(title="Drawdowns Time Series", template='plotly_white')
             st.plotly_chart(fig5, use_container_width=True)
