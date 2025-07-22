@@ -231,12 +231,12 @@ if ticker_input:
 
                 if run_scenario:
     # Apply shocks to prices
-                shocked_prices = np.array([prices[i] * (1 + price_shocks[t] / 100) for i, t in enumerate(tickers)])
-                shocked_prices = np.round(shocked_prices, 2)
+                    shocked_prices = np.array([prices[i] * (1 + price_shocks[t] / 100) for i, t in enumerate(tickers)])
+                    shocked_prices = np.round(shocked_prices, 2)
 
-                shocked_value = shocked_prices * units_arr
-                shocked_weights = shocked_value / shocked_value.sum()
-                shocked_weighted_beta = shocked_weights * beta.values
+                    shocked_value = shocked_prices * units_arr
+                    shocked_weights = shocked_value / shocked_value.sum()
+                    shocked_weighted_beta = shocked_weights * beta.values
 
     # Create scenario DataFrame
                 scenario_df = pd.DataFrame({
