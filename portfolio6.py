@@ -86,8 +86,8 @@ if ticker_input:
 
             daily_change = np.log(portfolio_ts/portfolio_ts.shift(1)).dropna()
             daily_mean_change = daily_change.mean()
-            monthly_mean_change = np.exp(daily_mean * 21) - 1  
-            yearly_mean_change  = np.exp(daily_mean * 252) - 1 
+            monthly_mean_change = np.exp(daily_mean_change * 21) - 1  
+            yearly_mean_change  = np.exp(daily_mean_change * 252) - 1 
             st.write(f" Mean Daily Log Return: {daily_mean_change:.5f}")
             st.write(f" Mean Monthly Log Return: {monthly_mean_change:.2f}")
             st.write(f" Mean Yearly Log Return: {yearly_mean_change:.2f}")
