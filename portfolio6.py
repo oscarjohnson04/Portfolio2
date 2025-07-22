@@ -88,9 +88,9 @@ if ticker_input:
             daily_mean_change = daily_change.mean()
             monthly_mean_change = np.exp(daily_mean_change * 21) - 1  
             yearly_mean_change  = np.exp(daily_mean_change * 252) - 1 
-            st.write(f"• Mean Daily Log Return: {daily_mean_change:.5f} ({daily_mean_change * 100:.2f}%)")
-            st.write(f"• Mean Monthly Log Return: {monthly_mean_change:.5f} ({monthly_mean_change * 100:.2f}%)")
-            st.write(f"• Mean Yearly Log Return: {yearly_mean_change:.5f} ({yearly_mean_change * 100:.2f}%)")
+            st.write(f"• Mean Daily Log Return: {daily_mean_change * 100:.2f}%")
+            st.write(f"• Mean Monthly Log Return: {monthly_mean_change * 100:.2f}%")
+            st.write(f"• Mean Yearly Log Return: {yearly_mean_change * 100:.2f}%")
             
             # --- VaR & CVaR ---
             st.subheader("VaR and CVaR")
