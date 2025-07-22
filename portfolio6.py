@@ -130,6 +130,8 @@ if ticker_input:
             st.write(f"• Mean Yearly Log Return: {yearly_mean_change * 100:.2f}%")
 
             st.subheader("Correlation Matrix (Returns)")
+            with st.expander("ℹ️ What is a correlation matrix?"):
+                st.write("A correlation matrix displays how correlated each of your assets are to each other")
             correlation = log_returns[tickers].corr()
             fig_corr = go.Figure(data=go.Heatmap(z=correlation.values,
                                                  x=correlation.columns,
@@ -139,6 +141,9 @@ if ticker_input:
             
             # --- VaR & CVaR ---
             st.subheader("VaR and CVaR")
+            with st.expander("ℹ️ What is VaR and CVaR?"):
+                st.write("VaR (Value at risk) of 5% is how much your portfolio will have to lose to be in the 5% of worst daily returns")
+                st.write("CVaR (Conditional Value at risk) of 5% is how much your portfolio loses on average in 5% of worst daily returns")
             log_tfsa_returns = np.log(portfolio_ts/portfolio_ts.shift(1)).dropna()
             VaR = np.percentile(log_tfsa_returns, 5)
             CVaR = log_tfsa_returns[log_tfsa_returns <= VaR].mean()
@@ -201,6 +206,14 @@ if ticker_input:
             fig5.add_trace(go.Bar(x=comparison_df.index, y=comparison_df['Optimal Weight'], name="Optimal"))
             fig5.update_layout(barmode="group", title="Weight Comparison", template="plotly_white")
             st.plotly_chart(fig5, use_container_width=True)
+
+            current_value = value.sum()
+            opt_val = current_value * pd.Series(cleaned_weights)
+            opt_units = opt_val / prices
+            rebalance_units = opt_units - units_arr
+            rebalance_df = pd.DataFrame({'Rebalance Units': rebalance_units.round(2)}, index=tickers)
+            st.subheader("Suggested Rebalancing")
+            st.dataframe(rebalance_df)
 
             # --- Monte Carlo Simulation ---
             st.subheader("🎲 Monte Carlo Simulation")
