@@ -68,7 +68,7 @@ if ticker_input:
             portfolio['SP500 Weighted Delta (1%)'] = round(portfolio['Beta'] * portfolio['Price'] * portfolio['Units'] * 0.01, 2)
 
             totals = portfolio[['Current Value', 'SP500 Weighted Delta (point)', 'SP500 Weighted Delta (1%)']].sum()
-            portfolio.loc['Total'] = ['', '', *totals, '', '']
+            portfolio.loc['Total'] = ['', '', totals['Current Value'], '', '', '', totals['SP500 Weighted Delta (point)'], totals['SP500 Weighted Delta (1%)']]
 
             st.dataframe(portfolio)
 
