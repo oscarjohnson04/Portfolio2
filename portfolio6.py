@@ -90,6 +90,7 @@ if ticker_input:
             }
 
             # Display
+            st.subheader("Portfolio")
             st.dataframe(portfolio)
 
             sector_map = {}
@@ -127,6 +128,14 @@ if ticker_input:
             st.write(f"• Mean Daily Log Return: {daily_mean_change * 100:.2f}%")
             st.write(f"• Mean Monthly Log Return: {monthly_mean_change * 100:.2f}%")
             st.write(f"• Mean Yearly Log Return: {yearly_mean_change * 100:.2f}%")
+
+            st.subheader("Correlation Matrix (Returns)")
+            correlation = log_returns[tickers].corr()
+            fig_corr = go.Figure(data=go.Heatmap(z=correlation.values,
+                                                 x=correlation.columns,
+                                                 y=correlation.columns,
+                                                 colorscale='RdBu', zmin=-1, zmax=1))
+            st.plotly_chart(fig_corr, use_container_width=True)
             
             # --- VaR & CVaR ---
             st.subheader("VaR and CVaR")
