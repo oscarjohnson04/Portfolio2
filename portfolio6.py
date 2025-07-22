@@ -53,24 +53,34 @@ if ticker_input:
             weights = value / value.sum()
             beta = round(beta, 2)
 
+            # Construct portfolio DataFrame
             portfolio = pd.DataFrame({
                 'Price': prices,
                 'Units': units_arr,
                 'Current Value': value,
-                'Weights': weights.round(2),
+                'Weights': weights,
                 'Beta': beta.values,
                 'Weighted Beta': weights * beta.values
             }, index=tickers)
 
+            # Download SP500 data
             sp500 = yf.download('^GSPC', start, end)
-            sp500_price = sp500.Close.iloc[-1]
-            portfolio['SP500 Weighted Delta (point)'] = round(portfolio['Beta'] * portfolio['Price'] / sp500_price * portfolio['Units'], 2)
-            portfolio['SP500 Weighted Delta (1%)'] = round(portfolio['Beta'] * portfolio['Price'] * portfolio['Units'] * 0.01, 2)
+            sp500_price = sp500['Close'].iloc[-1]
 
+            # Compute SP500 weighted deltas
+            portfolio['SP500 Weighted Delta (point)'] = portfolio['Beta'] * portfolio['Price'] / sp500_price * portfolio['Units']
+            portfolio['SP500 Weighted Delta (1%)'] = portfolio['Beta'] * portfolio['Price'] * portfolio['Units'] * 0.01
+
+            # Round all numeric columns to 2 decimals
+            portfolio = portfolio.applymap(lambda x: round(x, 2) if isinstance(x, (float, int)) else x)
+
+            # Compute totals
             totals = portfolio[['Current Value', 'SP500 Weighted Delta (point)', 'SP500 Weighted Delta (1%)']].sum()
             portfolio.loc['Total'] = ['', '', totals['Current Value'], '', '', '', totals['SP500 Weighted Delta (point)'], totals['SP500 Weighted Delta (1%)']]
 
+            # Display
             st.dataframe(portfolio)
+
 
             # --- Timeline Plot ---
             st.subheader("📈 Portfolio vs S&P 500")
