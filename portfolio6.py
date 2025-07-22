@@ -168,6 +168,8 @@ if ticker_input:
 
             # --- Sharpe Ratio ---
             st.subheader("Sharpe Ratio")
+            with st.expander("ℹ️ What is Sharpe Ratio?"):
+                st.write("The Sharpe Ratio is the average return earned in excess of the risk-free rate per unit of volatility.")
             volatility = log_tfsa_returns.rolling(60).std()*np.sqrt(60)
             sp500_log_returns = np.log(Close['^GSPC'] / Close['^GSPC'].shift(1)).dropna()
             total_return = np.exp(sp500_log_returns.sum()) - 1
