@@ -14,7 +14,7 @@ from plotly.subplots import make_subplots
 
 st.set_page_config(layout="wide")
 
-st.title("📊 Portfolio Analysis & Prediction Dashboard")
+st.title("📊 Portfolio Analysis Dashboard")
 
 # --- Ticker Input ---
 ticker_input = st.text_input("Enter Tickers (comma-separated)", value="AAPL, MSFT, TSLA")
