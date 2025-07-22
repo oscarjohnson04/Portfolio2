@@ -75,6 +75,7 @@ if ticker_input:
             # --- Timeline Plot ---
             st.subheader("📈 Portfolio vs S&P 500")
             close_prices = stocklist['Close'][tickers]
+            sp500 = yf.download('^GSPC', start, end, multi_level_index = False)
             portfolio_ts = (close_prices * units_arr).sum(axis=1)
 
             fig1 = make_subplots(specs=[[{"secondary_y": True}]])
