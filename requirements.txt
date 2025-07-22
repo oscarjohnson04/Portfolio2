@@ -3,6 +3,6 @@ pandas
 numpy
 yfinance
 scikit-learn
-pypfopt
+PyPortfolioOpt
 plotly
 tensorflow-cpu==2.12.0
