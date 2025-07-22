@@ -23,7 +23,7 @@ if ticker_input:
     tickers = [t.strip().upper() for t in ticker_input.split(',') if t.strip()]
     units = {}
 
-    st.subheader("📦 Number of Shares per Ticker")
+    st.subheader("Number of Shares per Ticker")
     cols = st.columns(len(tickers))
     for i, t in enumerate(tickers):
         units[t] = cols[i].number_input(f"{t}", min_value=0, value=1, step=1)
@@ -84,8 +84,13 @@ if ticker_input:
             fig1.update_layout(title="Portfolio Value vs S&P 500", template='plotly_white')
             st.plotly_chart(fig1, use_container_width=True)
 
+            daily_change = np.log(portfolio_ts/portfolio_ts.shift(1)).dropna()
+            daily_mean_change = daily_change.mean()
+            st.write(f" Mean Daily Log Return: {daily_mean_change:.5f}")
+            
+            
             # --- VaR & CVaR ---
-            st.subheader("📉 VaR and CVaR")
+            st.subheader("VaR and CVaR")
             log_tfsa_returns = np.log(portfolio_ts/portfolio_ts.shift(1)).dropna()
             VaR = np.percentile(log_tfsa_returns, 5)
             CVaR = log_tfsa_returns[log_tfsa_returns <= VaR].mean()
@@ -98,7 +103,7 @@ if ticker_input:
             st.plotly_chart(fig2, use_container_width=True)
 
             # --- Sharpe Ratio ---
-            st.subheader("⚖️ Sharpe Ratio")
+            st.subheader("Sharpe Ratio")
             volatility = log_tfsa_returns.rolling(60).std()*np.sqrt(60)
             sp500_log_returns = np.log(Close['^GSPC'] / Close['^GSPC'].shift(1)).dropna()
             total_return = np.exp(sp500_log_returns.sum()) - 1
@@ -113,7 +118,7 @@ if ticker_input:
             st.plotly_chart(fig3, use_container_width=True)
 
             # --- Portfolio Optimization ---
-            st.subheader("🔧 Portfolio Optimization")
+            st.subheader("Portfolio Optimization")
             mu = expected_returns.mean_historical_return(stocklist['Close'][tickers])
             S = risk_models.sample_cov(stocklist['Close'][tickers])
             ef = EfficientFrontier(mu, S)
@@ -153,7 +158,7 @@ if ticker_input:
             st.plotly_chart(fig4, use_container_width=True)
 
             # --- LSTM Forecast ---
-            st.subheader("🤖 LSTM Forecast")
+            st.subheader("LSTM Forecast")
             monthly_prices = stocklist.Close.resample('ME').last()
             monthly_returns = monthly_prices.pct_change().dropna()
             weights_series = pd.Series(weights, index=tickers)
