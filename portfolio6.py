@@ -124,8 +124,8 @@ if ticker_input:
             fig2.add_trace(go.Histogram(x=log_tfsa_returns * 100, nbinsx=500))
             fig2.add_vline(x=VaR_pct, line=dict(color="red", dash="dash"))
             fig2.add_vline(x=CVaR_pct, line=dict(color="darkred", dash="dot"))
-            fig2.add_annotation(x=VaR_pct, y=25, text=f"VaR 95%: {VaR_pct:.2f}%", showarrow=True, arrowhead=1, ax=60)
-            fig2.add_annotation(x=CVaR_pct, y=25, text=f"CVaR 95%: {CVaR_pct:.2f}%", showarrow=True, arrowhead=1, ax=-80)
+            fig2.add_annotation(x=VaR_pct, y=75, text=f"VaR 95%: {VaR_pct:.2f}%", showarrow=True, arrowhead=1, ax=60)
+            fig2.add_annotation(x=CVaR_pct, y=75, text=f"CVaR 95%: {CVaR_pct:.2f}%", showarrow=True, arrowhead=1, ax=-80)
             st.plotly_chart(fig2, use_container_width=True)
 
             # --- Sharpe Ratio ---
