@@ -230,17 +230,18 @@ if ticker_input:
                 run_scenario = st.form_submit_button("Run Stress Test")
 
                 if run_scenario:
-    # Apply shocks to prices
-                    shocked_prices = np.array([prices[i] * (1 + price_shocks[t] / 100) for i, t in enumerate(tickers)])
-                    shocked_prices = np.round(shocked_prices, 2)
+                    prices_arr = np.array(prices).flatten()
 
+    # 1. Apply shocks
+                    shocked_prices = np.array([prices_arr[i] * (1 + price_shocks[t] / 100) for i, t in enumerate(tickers)])
                     shocked_value = shocked_prices * units_arr
                     shocked_weights = shocked_value / shocked_value.sum()
                     shocked_weighted_beta = shocked_weights * beta.values
 
-    # Create scenario DataFrame
+    # 2. Create the DataFrame
                 scenario_df = pd.DataFrame({
-                    'Original Price': prices,
+                    'Original Price': prices_arr,
+                    'Price Shock (%)': [price_shocks[t] for t in tickers],
                     'Shocked Price': shocked_prices,
                     'Units': units_arr,
                     'Shocked Value': shocked_value,
@@ -249,10 +250,9 @@ if ticker_input:
                     'New Weighted Beta': shocked_weighted_beta
                 }, index=tickers)
 
-                scenario_df['Price Change (%)'] = (scenario_df['Shocked Price'] - scenario_df['Original Price']) / scenario_df['Original Price'] * 100
                 scenario_df = scenario_df.round(2)
 
-    # Show results
+    # 3. Show results
                 new_total_value = scenario_df['Shocked Value'].sum()
                 new_portfolio_beta = shocked_weighted_beta.sum()
 
