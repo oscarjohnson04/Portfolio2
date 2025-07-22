@@ -68,7 +68,9 @@ if ticker_input:
             sp500_price = sp500['Close'].iloc[-1]
 
             # Compute SP500 weighted deltas
-            portfolio['SP500 Weighted Delta (point)'] = (portfolio['Beta'] * portfolio['Price'] / sp500_price * portfolio['Units']).round(2)
+            portfolio['SP500 Weighted Delta (point)'] = (portfolio['Beta'].astype(float)* portfolio['Price'].astype(float)* portfolio['Units'].astype(float)) / float(sp500_price)
+
+            portfolio['SP500 Weighted Delta (point)'] = portfolio['SP500 Weighted Delta (point)'].round(2)
             portfolio['SP500 Weighted Delta (1%)'] = portfolio['Beta'] * portfolio['Price'] * portfolio['Units'] * 0.01
 
             # Round all numeric columns to 2 decimals
