@@ -1,8 +1,8 @@
 streamlit
-yfinance
-pypfopt
-scikit-learn
 pandas
 numpy
-tensorflow
+yfinance
+scikit-learn
+pypfopt
 plotly
+tensorflow==2.12.0
