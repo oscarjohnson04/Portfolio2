@@ -220,45 +220,40 @@ if ticker_input:
             with st.form("scenario_form"):
                 st.markdown("Adjust price shock (%) for each ticker to simulate the effect on your portfolio:")
     
-    # Create sliders for each ticker
-                shock_cols = st.columns(len(tickers))
-                price_shocks = {}
-                for i, t in enumerate(tickers):
-                    price_shocks[t] = shock_cols[i].slider(f"{t} shock (%)", min_value=-20, max_value=20, value=0, step=1)
+    # Sliders for shocks
+            shock_cols = st.columns(len(tickers))
+            price_shocks = {}
+            for i, t in enumerate(tickers):
+                price_shocks[t] = shock_cols[i].slider(f"{t} shock (%)", min_value=-20, max_value=20, value=0, step=1)
     
-    # Submit button
-                run_scenario = st.form_submit_button("Run Stress Test")
+            run_scenario = st.form_submit_button("Run Stress Test")
 
-                if run_scenario:
-                    prices_arr = np.array(prices).flatten()
+            if run_scenario:
+    # Ensure price array is 1D and numeric
+                prices_arr = np.array(prices, dtype=float).flatten()  # <<< THIS LINE FIXES THE ERROR
+                shocked_prices = np.array([prices_arr[i] * (1 + price_shocks[t] / 100) for i, t in enumerate(tickers)])
+                shocked_value = shocked_prices * units_arr
+                shocked_weights = shocked_value / shocked_value.sum()
+                shocked_weighted_beta = shocked_weights * beta.values
 
-    # 1. Apply shocks
-                    shocked_prices = np.array([prices_arr[i] * (1 + price_shocks[t] / 100) for i, t in enumerate(tickers)])
-                    shocked_value = shocked_prices * units_arr
-                    shocked_weights = shocked_value / shocked_value.sum()
-                    shocked_weighted_beta = shocked_weights * beta.values
+    # Create DataFrame
+            scenario_df = pd.DataFrame({
+                'Original Price': prices_arr,
+                'Price Shock (%)': [price_shocks[t] for t in tickers],
+                'Shocked Price': shocked_prices,
+                'Units': units_arr,
+                'Shocked Value': shocked_value,
+                'New Weight': shocked_weights,
+                'Beta': beta.values,
+                'New Weighted Beta': shocked_weighted_beta
+            }, index=tickers)
 
-    # 2. Create the DataFrame
-                scenario_df = pd.DataFrame({
-                    'Original Price': prices_arr,
-                    'Price Shock (%)': [price_shocks[t] for t in tickers],
-                    'Shocked Price': shocked_prices,
-                    'Units': units_arr,
-                    'Shocked Value': shocked_value,
-                    'New Weight': shocked_weights,
-                    'Beta': beta.values,
-                    'New Weighted Beta': shocked_weighted_beta
-                }, index=tickers)
+            scenario_df = scenario_df.round(2)
 
-                scenario_df = scenario_df.round(2)
-
-    # 3. Show results
-                new_total_value = scenario_df['Shocked Value'].sum()
-                new_portfolio_beta = shocked_weighted_beta.sum()
-
-                st.dataframe(scenario_df)
-                st.write(f"💼 New Portfolio Value: **${new_total_value:,.2f}**")
-                st.write(f"📏 New Portfolio Beta: **{new_portfolio_beta:.2f}**")
+    # Display results
+            st.dataframe(scenario_df)
+            st.write(f"💼 New Portfolio Value: **${scenario_df['Shocked Value'].sum():,.2f}**")
+            st.write(f"📏 New Portfolio Beta: **{scenario_df['New Weighted Beta'].sum():.2f}**")
 
 
             # --- Monte Carlo Simulation ---
