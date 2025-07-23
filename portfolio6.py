@@ -155,7 +155,8 @@ if ticker_input:
 
             with col2:
                 st.subheader("📈 Average Monthly Return by Sector")
-                st.dataframe(avg_sector_returns.to_frame(name="Avg Monthly Return").style.format({"Avg Monthly Return": "{:.2%}"}))
+                st.plotly_chart(fig_bar, use_container_width=True)
+                
             
             # --- Timeline Plot ---
             st.subheader(f"📈 Portfolio vs {benchmark_name}")
