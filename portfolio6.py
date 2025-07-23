@@ -21,7 +21,7 @@ benchmark_options = {
     'S&P 500': '^GSPC',
     'NASDAQ': '^IXIC',
     'Dow Jones': '^DJI',
-    'RUSSELL 2000: '^RUT',
+    'RUSSELL 2000': '^RUT',
     'TSX': '^GSPTSE',
     'NIKKEI 225': '^N225',
     'HANG SENG': '^HSI',
