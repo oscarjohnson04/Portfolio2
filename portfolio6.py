@@ -108,7 +108,7 @@ if ticker_input:
             }
 
             # Display
-            st.subheader("Portfolio")
+            st.subheader("Portfolio Dashboard")
             st.dataframe(portfolio)
 
             sector_map = {}
