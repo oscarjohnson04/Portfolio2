@@ -272,7 +272,7 @@ if ticker_input:
             st.plotly_chart(fig3, use_container_width=True)
 
             # --- Portfolio Optimization ---
-            st.subheader("Portfolio Optimization")
+            #st.subheader("Portfolio Optimization")
             mu = expected_returns.mean_historical_return(stocklist['Close'][tickers])
             S = risk_models.sample_cov(stocklist['Close'][tickers])
             ef = EfficientFrontier(mu, S)
@@ -288,16 +288,25 @@ if ticker_input:
             fig5.add_trace(go.Bar(x=comparison_df.index, y=comparison_df['Current Weight'], name="Current"))
             fig5.add_trace(go.Bar(x=comparison_df.index, y=comparison_df['Optimal Weight'], name="Optimal"))
             fig5.update_layout(barmode="group", title="Weight Comparison", template="plotly_white")
-            st.plotly_chart(fig5, use_container_width=True)
+            #st.plotly_chart(fig5, use_container_width=True)
 
             current_value = value.sum()
             opt_val = current_value * pd.Series(cleaned_weights)
             opt_units = opt_val / prices
             rebalance_units = opt_units - units_arr
             rebalance_df = pd.DataFrame({'Units needed to reach optimal portfolio': rebalance_units.round(2)}, index=tickers)
-            st.subheader("Suggested Rebalancing")
-            st.dataframe(rebalance_df)
-            
+            #st.subheader("Suggested Rebalancing")
+            #st.dataframe(rebalance_df)
+
+            col3, col4 = st.columns(2)
+
+            with col3:
+                st.subheader("Portfolio Optimization")
+                st.plotly_chart(fig5, use_container_width=True)
+
+            with col4:
+                st.subheader("Suggested Rebalancing")
+                st.dataframe(rebalance_df)
 
             # --- Monte Carlo Simulation ---
             st.subheader("Monte Carlo Simulation")
