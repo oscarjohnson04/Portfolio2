@@ -166,16 +166,38 @@ if ticker_input:
             st.write(f"• Mean Yearly Log Return: {yearly_mean_change * 100:.2f}%")
             
             st.subheader("💰 Dividend Summary")
+
             dividends = {}
             for t in tickers:
                 try:
-                    div_yield = yf.Ticker(t).info.get('dividendYield', 0)
-                    div_yield = div_yield / 100
-                    dividends[t] = div_yield if div_yield else 0
-                except:
-                    dividends[t] = 0
-            div_df = pd.DataFrame.from_dict(dividends, orient='index', columns=['Dividend Yield'])
-            st.dataframe(div_df.style.format({"Dividend Yield": "{:.2%}"}))
+                    info = yf.Ticker(t).info
+                    div_yield = info.get('dividendYield', 0)
+                    div_amount = info.get('dividendRate', 0)
+
+        # Normalize yield if needed
+                    if div_yield:
+                        div_yield = div_yield / 100 if div_yield > 0 else div_yield
+                    else:
+                        div_yield = 0
+
+        # Store both
+                    dividends[t] = {
+                        'Dividend Yield': div_yield,
+                        'Dividend Amount ($)': div_amount if div_amount else 0
+                    }
+
+            except:
+                dividends[t] = {
+                    'Dividend Yield': 0,
+                    'Dividend Amount ($)': 0
+                }
+
+# Convert to DataFrame
+            div_df = pd.DataFrame.from_dict(dividends, orient='index')
+            st.dataframe(div_df.style.format({
+                "Dividend Yield": "{:.2%}",
+                "Dividend Amount ($)": "${:.2f}"
+            }))
             
             st.subheader("Correlation Matrix (Returns)")
             with st.expander("ℹ️ What is a correlation matrix?"):
