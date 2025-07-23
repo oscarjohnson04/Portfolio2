@@ -129,7 +129,10 @@ if ticker_input:
                     if news_items:
                         st.markdown(f"**{ticker}**")
                         for item in news_items:
-                            st.markdown(f"- [{item['title']}]({item['link']}) ({item['publisher']})")
+                            title = item.get("title", "No Title")
+                            link = item.get("link", "#")
+                            publisher = item.get("publisher", "Unknown")
+                            st.markdown(f"- [{title}]({link}) ({publisher})")
                     else:
                         st.markdown(f"**{ticker}** — No news found.")
 
