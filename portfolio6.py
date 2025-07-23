@@ -16,6 +16,15 @@ st.set_page_config(layout="wide")
 
 st.title("📊 Portfolio Analysis Dashboard")
 
+st.sidebar.header("Benchmark Settings")
+benchmark_options = {
+    'S&P 500': '^GSPC',
+    'NASDAQ': '^IXIC',
+    'TSX (Canada)': '^GSPTSE'
+}
+benchmark_name = st.sidebar.selectbox("Choose Benchmark:", list(benchmark_options.keys()))
+benchmark_ticker = benchmark_options[benchmark_name]
+
 # --- Ticker Input ---
 ticker_input = st.text_input("Enter Tickers (comma-separated)", value="AAPL, MSFT, TSLA")
 
@@ -110,15 +119,15 @@ if ticker_input:
             st.plotly_chart(fig_sector, use_container_width=True)
 
             # --- Timeline Plot ---
-            st.subheader("📈 Portfolio vs S&P 500")
+            st.subheader(f"📈 Portfolio vs {benchmark_name}")
             close_prices = stocklist['Close'][tickers]
-            sp500 = yf.download('^GSPC', start, end, multi_level_index = False)
+            benchmark_data = yf.download(benchmark_ticker, start, end, multi_level_index = False)
             portfolio_ts = (close_prices * units_arr).sum(axis=1)
 
             fig1 = make_subplots(specs=[[{"secondary_y": True}]])
             fig1.add_trace(go.Scatter(x=portfolio_ts.index, y=portfolio_ts, name="Portfolio"), secondary_y=False)
-            fig1.add_trace(go.Scatter(x=sp500.index, y=sp500['Close'], name="S&P 500"), secondary_y=True)
-            fig1.update_layout(title="Portfolio Value vs S&P 500", template='plotly_white')
+            fig1.add_trace(go.Scatter(x=benchmark_data.index, y=benchmark_data['Close'], name=benchmark_name), secondary_y=True)
+            fig1.update_layout(title=f"Portfolio Value vs {benchmark_name}", template='plotly_white')
             st.plotly_chart(fig1, use_container_width=True)
 
             daily_change = np.log(portfolio_ts/portfolio_ts.shift(1)).dropna()
