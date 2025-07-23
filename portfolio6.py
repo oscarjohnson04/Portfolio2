@@ -147,19 +147,19 @@ if ticker_input:
             col1, col2 = st.columns(2)
 
             with col1:
-                st.subheader("🏭 Sector Allocation")
+                st.subheader("Sector Allocation")
                 fig_sector = go.Figure(
                     data=[go.Pie(labels=sector_grouped.index, values=sector_grouped)],
                     layout=dict(title="Sector Allocation"))
                 st.plotly_chart(fig_sector, use_container_width=True)
 
             with col2:
-                st.subheader("📈 Average Monthly Return by Sector")
+                st.subheader("Average Monthly Return by Sector")
                 st.plotly_chart(fig_bar, use_container_width=True)
                 
             
             # --- Timeline Plot ---
-            st.subheader(f"📈 Portfolio vs {benchmark_name}")
+            st.subheader(f"Portfolio vs {benchmark_name}")
             close_prices = stocklist['Close'][tickers]
             benchmark_data = yf.download(benchmark_ticker, start, end, multi_level_index = False)
             portfolio_ts = (close_prices * units_arr).sum(axis=1)
@@ -178,7 +178,7 @@ if ticker_input:
             st.write(f"• Mean Monthly Log Return: {monthly_mean_change * 100:.2f}%")
             st.write(f"• Mean Yearly Log Return: {yearly_mean_change * 100:.2f}%")
             
-            st.subheader("💰 Dividend Summary")
+            st.subheader("Dividend Summary")
 
             dividends = {}
             for t in tickers:
@@ -300,7 +300,7 @@ if ticker_input:
             
 
             # --- Monte Carlo Simulation ---
-            st.subheader("🎲 Monte Carlo Simulation")
+            st.subheader("Monte Carlo Simulation")
             daily_std = log_tfsa_returns.std()
             u = log_tfsa_returns.mean()
             drift = u - 0.5 * log_tfsa_returns.var()
@@ -361,4 +361,4 @@ if ticker_input:
             pred_scaled = model.predict(last_seq_scaled)
             predicted_return = scaler_y.inverse_transform(pred_scaled)
 
-            st.success(f"📅 Predicted Return Next Month: **{predicted_return[0][0]:.2%}**")
+            st.success(f"Predicted Return Next Month: **{predicted_return[0][0]:.2%}**")
