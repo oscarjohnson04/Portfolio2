@@ -121,7 +121,7 @@ if ticker_input:
             
                         if news_items:
                             for item in news_items[:5]:  # show top 5
-                            st.markdown(f"- [{item['title']}]({item['link']}) ({item['publisher']})")
+                                st.markdown(f"- [{item['title']}]({item['link']}) ({item['publisher']})")
                         else:
                             st.write("No news found.")
                     except AttributeError:
