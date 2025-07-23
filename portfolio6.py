@@ -139,9 +139,6 @@ if ticker_input:
 
             # Show sector-based average returns (optional table or bar chart)
             st.subheader("Average Monthly Returns by Sector")
-            st.dataframe(sector_returns.mean().sort_values(ascending=False).to_frame(name="Avg Monthly Return (%)") * 100)
-
-            # Optional: Bar Chart
             fig_bar = go.Figure(data=[
                 go.Bar(x=sector_returns.columns, y=sector_returns.mean() * 100)])
             fig_bar.update_layout(title="Average Monthly Sector Returns (%)", xaxis_title="Sector", yaxis_title="Return (%)")
