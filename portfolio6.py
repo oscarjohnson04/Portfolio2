@@ -151,7 +151,7 @@ if ticker_input:
             benchmark_cum = (1 + benchmark_returns).cumprod()
 
 # Align dates
-            common_index = daily_cjamge.index.intersection(benchmark_cum.index)
+            common_index = daily_change.index.intersection(benchmark_cum.index)
             portfolio_cum = (1 + daily_change.loc[common_index]).cumprod()
             benchmark_cum = benchmark_cum.loc[common_index]
 
