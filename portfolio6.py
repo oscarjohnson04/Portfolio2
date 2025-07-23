@@ -249,10 +249,10 @@ if ticker_input:
             st.plotly_chart(fig_corr, use_container_width=True)
             
             # --- VaR & CVaR ---
-            st.subheader("VaR and CVaR")
+            st.subheader("VaR, CVaR & Daily Returns")
             with st.expander("ℹ️ What is VaR and CVaR?"):
                 st.write("VaR (Value at risk) of 5% is how much your portfolio will have to lose to be in the 5% of worst daily returns")
-                st.write("CVaR (Conditional Value at risk) of 5% is how much your portfolio loses on average in 5% of worst daily returns")
+                st.write("CVaR (Conditional Value at risk) of 5% is how much your portfolio loses on average when it crosses the 5% VaR threshold")
             log_tfsa_returns = np.log(portfolio_ts/portfolio_ts.shift(1)).dropna()
             VaR = np.percentile(log_tfsa_returns, 5)
             CVaR = log_tfsa_returns[log_tfsa_returns <= VaR].mean()
@@ -273,10 +273,10 @@ if ticker_input:
                 return drawdown
 
             drawdowns = compute_drawdown(log_tfsa_returns)
-            st.subheader("Drawdown")
+            st.subheader("Drawdowns Time Series")
             fig5 = go.Figure()
             fig5.add_trace(go.Scatter(x=drawdowns.index, y=drawdowns, name="Drawdowns"))
-            fig5.update_layout(title="Drawdowns Time Series", template='plotly_white')
+            fig5.update_layout(template='plotly_white')
             st.plotly_chart(fig5, use_container_width=True)
             st.write(f"📉 Max Drawdown: {drawdowns.min()*100:.2f}%")
 
@@ -352,7 +352,7 @@ if ticker_input:
             for i in range(iterations):
                 fig4.add_trace(go.Scatter(x=np.arange(t_intervals), y=price_list[:, i], line=dict(width=1), showlegend=False))
             fig4.add_trace(go.Scatter(x=np.arange(t_intervals), y=price_list.mean(axis=1), name="Average Path", line=dict(color='black', dash='dash')))
-            fig4.update_layout(title="Monte Carlo Simulation", template="plotly_white")
+            fig4.update_layout(template="plotly_white")
             st.plotly_chart(fig4, use_container_width=True)
 
             # --- LSTM Forecast ---
