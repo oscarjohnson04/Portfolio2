@@ -127,6 +127,27 @@ if ticker_input:
             fig_sector = go.Figure(data=[go.Pie(labels=sector_grouped.index, values=sector_grouped)])
             st.plotly_chart(fig_sector, use_container_width=True)
 
+            # Compute monthly returns
+            monthly_prices = stocklist['Close'][tickers].resample('M').last()
+            monthly_returns = monthly_prices.pct_change().dropna()
+
+            # Convert your existing sector_map (dict) into a pandas Series aligned to columns
+            sector_series = pd.Series(sector_map).reindex(monthly_returns.columns).fillna("Unknown")
+
+            # Group monthly returns by sector
+            sector_returns = monthly_returns.groupby(sector_series, axis=1).mean()
+
+            # Show sector-based average returns (optional table or bar chart)
+            st.subheader("Average Monthly Returns by Sector")
+            st.dataframe(sector_returns.mean().sort_values(ascending=False).to_frame(name="Avg Monthly Return (%)") * 100)
+
+            # Optional: Bar Chart
+            fig_bar = go.Figure(data=[
+                go.Bar(x=sector_returns.columns, y=sector_returns.mean() * 100)])
+            fig_bar.update_layout(title="Average Monthly Sector Returns (%)", xaxis_title="Sector", yaxis_title="Return (%)")
+            st.plotly_chart(fig_bar, use_container_width=True)
+
+            
             # --- Timeline Plot ---
             st.subheader(f"📈 Portfolio vs {benchmark_name}")
             close_prices = stocklist['Close'][tickers]
@@ -146,16 +167,6 @@ if ticker_input:
             st.write(f"• Mean Daily Log Return: {daily_mean_change * 100:.2f}%")
             st.write(f"• Mean Monthly Log Return: {monthly_mean_change * 100:.2f}%")
             st.write(f"• Mean Yearly Log Return: {yearly_mean_change * 100:.2f}%")
-
-            st.subheader("📊 Performance Attribution by Sector")
-            sector_series = pd.Series(sector_map)
-
-            sector_series = sector_series.reindex(monthly_mean_change.columns)
-
-            sector_returns = monthly_meanPchange.groupby(sector_series, axis=1).mean()
-            sector_perf = sector_returns.mean()  # mean return per sector
-            st.bar_chart(sector_perf)
-
             
 
             st.subheader("Correlation Matrix (Returns)")
