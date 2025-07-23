@@ -127,17 +127,6 @@ if ticker_input:
             fig_sector = go.Figure(data=[go.Pie(labels=sector_grouped.index, values=sector_grouped)])
             st.plotly_chart(fig_sector, use_container_width=True)
 
-            st.subheader("📊 Performance Attribution by Sector")
-            sector_series = pd.Series(sector_map)
-
-# Ensure the series is aligned to monthly_returns columns
-            sector_series = sector_series.reindex(monthly_returns.columns)
-
-# Now groupby works correctly
-            sector_returns = monthly_returns.groupby(sector_series, axis=1).mean()
-            sector_perf = sector_returns.mean()  # mean return per sector
-            st.bar_chart(sector_perf)
-
             # --- Timeline Plot ---
             st.subheader(f"📈 Portfolio vs {benchmark_name}")
             close_prices = stocklist['Close'][tickers]
@@ -157,6 +146,16 @@ if ticker_input:
             st.write(f"• Mean Daily Log Return: {daily_mean_change * 100:.2f}%")
             st.write(f"• Mean Monthly Log Return: {monthly_mean_change * 100:.2f}%")
             st.write(f"• Mean Yearly Log Return: {yearly_mean_change * 100:.2f}%")
+
+            st.subheader("📊 Performance Attribution by Sector")
+            sector_series = pd.Series(sector_map)
+
+            sector_series = sector_series.reindex(monthly_mean_change.columns)
+
+            sector_returns = monthly_meanPchange.groupby(sector_series, axis=1).mean()
+            sector_perf = sector_returns.mean()  # mean return per sector
+            st.bar_chart(sector_perf)
+
             
 
             st.subheader("Correlation Matrix (Returns)")
