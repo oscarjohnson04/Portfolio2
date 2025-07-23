@@ -115,16 +115,17 @@ if ticker_input:
                 for t in tickers:
                     st.write(f"### {t}")
                     ticker = yf.Ticker(t)
-                    search_results = ticker.search()
-                    news_items = search_results.get('news', [])
-                    
-                    if news_items:
-                        for item in news_items[:5]:  # show top 5
+                    try:
+                        search_results = ticker.search()
+                        news_items = search_results.get('news', [])
+            
+                        if news_items:
+                            for item in news_items[:5]:  # show top 5
                             st.markdown(f"- [{item['title']}]({item['link']}) ({item['publisher']})")
-                    else:
-                        st.write("No news found.")
-                except AttributeError:
-                    st.write("News search not supported with your yfinance version.")
+                        else:
+                            st.write("No news found.")
+                    except AttributeError:
+                        st.write("News search not supported with your yfinance version.")
 
             sector_map = {}
             for t in tickers:
