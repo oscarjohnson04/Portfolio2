@@ -215,6 +215,25 @@ if ticker_input:
                 "Dividend Amount ($)": "${:.2f}",
                 "Total Dividend ($)": "${:.2f}"
             }))
+
+            fig_div = go.Figure(go.Bar(
+                x=div_df.index,
+                y=div_df['Total Dividend ($)'],
+                text=[f"${val:.2f}" for val in div_df['Total Dividend ($)']],
+                textposition='outside',
+                marker_color='mediumseagreen'
+            ))
+
+            fig_div.update_layout(
+                title="Total Dividend Income per Ticker",
+                xaxis_title="Ticker",
+                yaxis_title="Total Dividend ($)",
+                uniformtext_minsize=8,
+                uniformtext_mode='hide',
+                template='plotly_white'
+            )
+
+            st.plotly_chart(fig_div, use_container_width=True)
             
             st.subheader("Correlation Matrix (Returns)")
             with st.expander("ℹ️ What is a correlation matrix?"):
