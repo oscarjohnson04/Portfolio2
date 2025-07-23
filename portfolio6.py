@@ -127,6 +127,11 @@ if ticker_input:
             fig_sector = go.Figure(data=[go.Pie(labels=sector_grouped.index, values=sector_grouped)])
             st.plotly_chart(fig_sector, use_container_width=True)
 
+            st.subheader("📊 Performance Attribution by Sector")
+            sector_returns = monthly_returns.groupby(sector_map, axis=1).mean()  # average sector returns monthly
+            sector_perf = sector_returns.mean()  # mean return per sector
+            st.bar_chart(sector_perf)
+
             # --- Timeline Plot ---
             st.subheader(f"📈 Portfolio vs {benchmark_name}")
             close_prices = stocklist['Close'][tickers]
