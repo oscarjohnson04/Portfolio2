@@ -186,11 +186,11 @@ if ticker_input:
                         'Dividend Amount ($)': div_amount if div_amount else 0
                     }
 
-            except:
-                dividends[t] = {
-                    'Dividend Yield': 0,
-                    'Dividend Amount ($)': 0
-                }
+                except:
+                    dividends[t] = {
+                        'Dividend Yield': 0,
+                        'Dividend Amount ($)': 0
+                    }
 
 # Convert to DataFrame
             div_df = pd.DataFrame.from_dict(dividends, orient='index')
