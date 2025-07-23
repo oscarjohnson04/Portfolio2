@@ -144,6 +144,16 @@ if ticker_input:
             fig_bar.update_layout(title="Average Monthly Sector Returns (%)", xaxis_title="Sector", yaxis_title="Return (%)")
             st.plotly_chart(fig_bar, use_container_width=True)
 
+            col1, col2 = st.columns(2)
+
+            with col1:
+                st.subheader("🏭 Sector Allocation")
+                fig_sector = go.Figure(data=[go.Pie(labels=sector_grouped.index, values=sector_grouped)])
+                st.plotly_chart(fig_sector, use_container_width=True)
+
+            with col2:
+                st.subheader("📈 Average Monthly Return by Sector")
+                st.dataframe(avg_sector_returns.to_frame(name="Avg Monthly Return").style.format({"Avg Monthly Return": "{:.2%}"}))
             
             # --- Timeline Plot ---
             st.subheader(f"📈 Portfolio vs {benchmark_name}")
