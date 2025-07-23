@@ -111,30 +111,18 @@ if ticker_input:
             st.subheader("Portfolio")
             st.dataframe(portfolio)
 
-            def get_news_for_tickers(tickers):
-                all_news = {}
-                for ticker in tickers:
-                    try:
-                        stock = yf.Ticker(ticker)
-                        news = stock.news[:3]  # Get top 3 news items per ticker
-                        all_news[ticker] = news
-                    except Exception as e:
-                        all_news[ticker] = []
-                return all_news
-
             with st.expander("📰 Latest News for Your Portfolio"):
-                news_dict = get_news_for_tickers(tickers)
-
-                for ticker, news_items in news_dict.items():
+                for t in tickers:
+                    st.write(f"### {t}")
+                    ticker = yf.Ticker(t)
+                    search_results = ticker.search()
+                    news_items = search_results.get('news', [])
+                    
                     if news_items:
-                        st.markdown(f"**{ticker}**")
-                        for item in news_items:
-                            title = item.get("title", "No Title")
-                            link = item.get("link", "#")
-                            publisher = item.get("publisher", "Unknown")
-                            st.markdown(f"- [{title}]({link}) ({publisher})")
+                        for item in news_items[:5]:  # show top 5
+                            st.markdown(f"- [{item['title']}]({item['link']}) ({item['publisher']})")
                     else:
-                        st.markdown(f"**{ticker}** — No news found.")
+                        st.write("No news found.")
 
             sector_map = {}
             for t in tickers:
