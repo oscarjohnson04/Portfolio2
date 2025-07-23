@@ -141,7 +141,7 @@ if ticker_input:
             ##st.subheader("Average Monthly Returns by Sector")
             fig_bar = go.Figure(data=[
                 go.Bar(x=sector_returns.columns, y=sector_returns.mean() * 100)])
-            fig_bar.update_layout(title="Average Monthly Sector Returns (%)", xaxis_title="Sector", yaxis_title="Return (%)")
+            fig_bar.update_layout(xaxis_title="Sector", yaxis_title="Return (%)")
             ##st.plotly_chart(fig_bar, use_container_width=True)
 
             col1, col2 = st.columns(2)
@@ -149,12 +149,11 @@ if ticker_input:
             with col1:
                 st.subheader("Sector Allocation")
                 fig_sector = go.Figure(
-                    data=[go.Pie(labels=sector_grouped.index, values=sector_grouped)],
-                    layout=dict(title="Sector Allocation"))
+                    data=[go.Pie(labels=sector_grouped.index, values=sector_grouped)])
                 st.plotly_chart(fig_sector, use_container_width=True)
 
             with col2:
-                st.subheader("Average Monthly Return by Sector")
+                st.subheader("Average Monthly Return by Sector (%)")
                 st.plotly_chart(fig_bar, use_container_width=True)
                 
             
@@ -295,7 +294,7 @@ if ticker_input:
 
             fig3 = go.Figure()
             fig3.add_trace(go.Scatter(x=sharpe_ratio.index, y=sharpe_ratio, name="Sharpe Ratio"))
-            fig3.update_layout(title="Portfolio Sharpe Ratio", template="plotly_white")
+            fig3.update_layout(template="plotly_white")
             st.plotly_chart(fig3, use_container_width=True)
 
             # --- Portfolio Optimization ---
