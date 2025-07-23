@@ -143,7 +143,8 @@ if ticker_input:
             benchmark_ticker = benchmark_options[benchmark_name]
 
 # Download benchmark data
-            benchmark_data = yf.download(benchmark_ticker, start=start_date, end=end_date)['Close']
+            benchmark_data2 = yf.download(benchmark_ticker, start, end, multi_level_index = False)
+            benchmark_data = benchmark_data2.Close
 
 # Calculate benchmark returns
             benchmark_returns = benchmark_data.pct_change().dropna()
