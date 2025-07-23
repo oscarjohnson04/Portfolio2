@@ -192,24 +192,28 @@ if ticker_input:
                         div_yield = div_yield / 100 if div_yield > 0 else div_yield
                     else:
                         div_yield = 0
-
+                        
+                    total_dividend = div_amount * units.get(t, 0) if div_amount else 0
         # Store both
                     dividends[t] = {
                         'Dividend Yield': div_yield,
-                        'Dividend Amount ($)': div_amount if div_amount else 0
+                        'Dividend Amount ($)': div_amount if div_amount else 0,
+                        'Total Dividend ($)': total_dividend
                     }
 
                 except:
                     dividends[t] = {
                         'Dividend Yield': 0,
-                        'Dividend Amount ($)': 0
+                        'Dividend Amount ($)': 0,
+                        'Total Dividend ($)': 0
                     }
 
 # Convert to DataFrame
             div_df = pd.DataFrame.from_dict(dividends, orient='index')
             st.dataframe(div_df.style.format({
                 "Dividend Yield": "{:.2%}",
-                "Dividend Amount ($)": "${:.2f}"
+                "Dividend Amount ($)": "${:.2f}",
+                "Total Dividend ($)": "${:.2f}"
             }))
             
             st.subheader("Correlation Matrix (Returns)")
