@@ -20,7 +20,16 @@ st.sidebar.header("Benchmark Settings")
 benchmark_options = {
     'S&P 500': '^GSPC',
     'NASDAQ': '^IXIC',
-    'TSX (Canada)': '^GSPTSE'
+    'Dow Jones': '^DJI',
+    'RUSSELL 2000: '^RUT',
+    'TSX': '^GSPTSE',
+    'NIKKEI 225': '^N225',
+    'HANG SENG': '^HSI',
+    'NIFTY 50': '^NSEI',
+    'EURO STOXX 600': '^STOXX',
+    'FTSE 100': '^FTSE',
+    'DAX': '^GDAXI',
+    'CAC 40': '^FCHI'
 }
 benchmark_name = st.sidebar.selectbox("Choose Benchmark:", list(benchmark_options.keys()))
 benchmark_ticker = benchmark_options[benchmark_name]
@@ -137,44 +146,7 @@ if ticker_input:
             st.write(f"• Mean Daily Log Return: {daily_mean_change * 100:.2f}%")
             st.write(f"• Mean Monthly Log Return: {monthly_mean_change * 100:.2f}%")
             st.write(f"• Mean Yearly Log Return: {yearly_mean_change * 100:.2f}%")
-
-            # --- Custom Benchmark Comparison ---
-            st.subheader("📌 Custom Benchmark Comparison")
-
-# Define benchmark options and corresponding Yahoo Finance tickers
-            benchmark_options = {
-                'S&P 500': '^GSPC',
-                'NASDAQ': '^IXIC',
-                'TSX (Canada)': '^GSPTSE'
-            }
-
-            benchmark_name = st.selectbox("Choose a benchmark to compare:", list(benchmark_options.keys()))
-            benchmark_ticker = benchmark_options[benchmark_name]
-
-# Download benchmark data
-            benchmark_data2 = yf.download(benchmark_ticker, start, end, multi_level_index = False)
-            benchmark_data = benchmark_data2.Close
-
-# Calculate benchmark returns
-            benchmark_returns = benchmark_data.pct_change().dropna()
-            benchmark_cum = (1 + benchmark_returns).cumprod()
-
-# Align dates
-            common_index = daily_change.index.intersection(benchmark_cum.index)
-            portfolio_cum = (1 + daily_change.loc[common_index]).cumprod()
-            benchmark_cum = benchmark_cum.loc[common_index]
-
-# Plot comparison
-            fig_benchmark = go.Figure()
-            fig_benchmark.add_trace(go.Scatter(x=portfolio_cum.index, y=portfolio_cum, name="Portfolio"))
-            fig_benchmark.add_trace(go.Scatter(x=benchmark_cum.index, y=benchmark_cum, name=benchmark_name))
-            fig_benchmark.update_layout(
-                title=f"Portfolio vs {benchmark_name} (Cumulative Returns)",
-                xaxis_title="Date", yaxis_title="Cumulative Value",
-                template="plotly_white"
-            )
-            st.plotly_chart(fig_benchmark, use_container_width=True)
-
+            
 
             st.subheader("Correlation Matrix (Returns)")
             with st.expander("ℹ️ What is a correlation matrix?"):
