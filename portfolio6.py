@@ -177,8 +177,6 @@ if ticker_input:
             st.write(f"• Mean Daily Log Return: {daily_mean_change * 100:.2f}%")
             st.write(f"• Mean Monthly Log Return: {monthly_mean_change * 100:.2f}%")
             st.write(f"• Mean Yearly Log Return: {yearly_mean_change * 100:.2f}%")
-            
-            st.subheader("Dividend Summary")
 
             dividends = {}
             for t in tickers:
@@ -210,11 +208,6 @@ if ticker_input:
 
 # Convert to DataFrame
             div_df = pd.DataFrame.from_dict(dividends, orient='index')
-            st.dataframe(div_df.style.format({
-                "Dividend Yield": "{:.2%}",
-                "Dividend Amount ($)": "${:.2f}",
-                "Total Dividend ($)": "${:.2f}"
-            }))
 
             fig_div = go.Figure(go.Bar(
                 x=div_df.index,
@@ -233,8 +226,19 @@ if ticker_input:
                 template='plotly_white'
             )
 
-            st.plotly_chart(fig_div, use_container_width=True)
-            
+            col5, col6 = st.columns(2)
+
+            with col5:
+                st.subheader("Dividend Summary")
+                st.dataframe(div_df.style.format({
+                    "Dividend Yield": "{:.2%}",
+                    "Dividend Amount ($)": "${:.2f}",
+                    "Total Dividend ($)": "${:.2f}"
+                }))
+                
+            with col6:
+                st.plotly_chart(fig_div, use_container_width=True)
+
             st.subheader("Correlation Matrix (Returns)")
             with st.expander("ℹ️ What is a correlation matrix?"):
                 st.write("A correlation matrix displays how correlated each of your assets are to each other")
