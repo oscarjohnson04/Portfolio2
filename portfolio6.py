@@ -123,6 +123,8 @@ if ticker_input:
                             st.markdown(f"- [{item['title']}]({item['link']}) ({item['publisher']})")
                     else:
                         st.write("No news found.")
+                except AttributeError:
+                    st.write("News search not supported with your yfinance version.")
 
             sector_map = {}
             for t in tickers:
