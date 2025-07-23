@@ -218,7 +218,6 @@ if ticker_input:
             ))
 
             fig_div.update_layout(
-                title="Total Dividend Income per Ticker",
                 xaxis_title="Ticker",
                 yaxis_title="Total Dividend ($)",
                 uniformtext_minsize=8,
@@ -237,6 +236,7 @@ if ticker_input:
                 }))
                 
             with col6:
+                st.subheader("Total Dividend Income per Ticker")
                 st.plotly_chart(fig_div, use_container_width=True)
 
             st.subheader("Correlation Matrix (Returns)")
