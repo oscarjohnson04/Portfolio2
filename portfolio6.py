@@ -170,6 +170,7 @@ if ticker_input:
             for t in tickers:
                 try:
                     div_yield = yf.Ticker(t).info.get('dividendYield', 0)
+                    div_yield = div_yield / 100
                     dividends[t] = div_yield if div_yield else 0
                 except:
                     dividends[t] = 0
