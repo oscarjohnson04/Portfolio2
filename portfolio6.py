@@ -128,7 +128,13 @@ if ticker_input:
             st.plotly_chart(fig_sector, use_container_width=True)
 
             st.subheader("📊 Performance Attribution by Sector")
-            sector_returns = monthly_returns.groupby(sector_map, axis=1).mean()  # average sector returns monthly
+            sector_series = pd.Series(sector_map)
+
+# Ensure the series is aligned to monthly_returns columns
+            sector_series = sector_series.reindex(monthly_returns.columns)
+
+# Now groupby works correctly
+            sector_returns = monthly_returns.groupby(sector_series, axis=1).mean()
             sector_perf = sector_returns.mean()  # mean return per sector
             st.bar_chart(sector_perf)
 
