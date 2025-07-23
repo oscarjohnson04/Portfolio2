@@ -123,9 +123,9 @@ if ticker_input:
             sector_df = pd.Series({sector_map[t]: value[i] for i, t in enumerate(tickers)})
             sector_grouped = sector_df.groupby(sector_df.index).sum()
 
-            st.subheader("Sector Allocation")
+            ##st.subheader("Sector Allocation")
             fig_sector = go.Figure(data=[go.Pie(labels=sector_grouped.index, values=sector_grouped)])
-            st.plotly_chart(fig_sector, use_container_width=True)
+            ##st.plotly_chart(fig_sector, use_container_width=True)
 
             # Compute monthly returns
             monthly_prices = stocklist['Close'][tickers].resample('M').last()
@@ -138,11 +138,11 @@ if ticker_input:
             sector_returns = monthly_returns.groupby(sector_series, axis=1).mean()
 
             # Show sector-based average returns (optional table or bar chart)
-            st.subheader("Average Monthly Returns by Sector")
+            ##st.subheader("Average Monthly Returns by Sector")
             fig_bar = go.Figure(data=[
                 go.Bar(x=sector_returns.columns, y=sector_returns.mean() * 100)])
             fig_bar.update_layout(title="Average Monthly Sector Returns (%)", xaxis_title="Sector", yaxis_title="Return (%)")
-            st.plotly_chart(fig_bar, use_container_width=True)
+            ##st.plotly_chart(fig_bar, use_container_width=True)
 
             col1, col2 = st.columns(2)
 
