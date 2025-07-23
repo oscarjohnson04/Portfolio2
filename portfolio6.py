@@ -16,7 +16,7 @@ st.set_page_config(layout="wide")
 
 st.title("📊 Portfolio Analysis Dashboard")
 
-st.sidebar.header("Benchmark Settings")
+st.sidebar.header("Benchmark Settings (Used in portfolio time series)")
 benchmark_options = {
     'S&P 500': '^GSPC',
     'NASDAQ': '^IXIC',
@@ -165,7 +165,17 @@ if ticker_input:
             st.write(f"• Mean Monthly Log Return: {monthly_mean_change * 100:.2f}%")
             st.write(f"• Mean Yearly Log Return: {yearly_mean_change * 100:.2f}%")
             
-
+            st.subheader("💰 Dividend Summary")
+            dividends = {}
+            for t in tickers:
+                try:
+                    div_yield = yf.Ticker(t).info.get('dividendYield', 0)
+                    dividends[t] = div_yield if div_yield else 0
+                except:
+                    dividends[t] = 0
+            div_df = pd.DataFrame.from_dict(dividends, orient='index', columns=['Dividend Yield'])
+            st.dataframe(div_df.style.format({"Dividend Yield": "{:.2%}"}))
+            
             st.subheader("Correlation Matrix (Returns)")
             with st.expander("ℹ️ What is a correlation matrix?"):
                 st.write("A correlation matrix displays how correlated each of your assets are to each other")
