@@ -38,6 +38,9 @@ benchmark_ticker = benchmark_options[benchmark_name]
 # macrodata
 fred = Fred(api_key='00edddc751dd47fb05bd7483df1ed0a3')
 
+start = dt.datetime(2015, 1, 1)
+end = dt.datetime.now()
+
 realgdp = fred.get_series('GDPC1', start, end).iloc[-1]
 unrate = fred.get_series('DGS3MO', start, end).iloc[-1]
 cpi = fred.get_series('MEDCPIM158SFRBCLE', start, end).iloc[-1]
