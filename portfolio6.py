@@ -238,6 +238,52 @@ if ticker_input:
                 st.subheader("Total Dividend Income per Ticker")
                 st.plotly_chart(fig_div, use_container_width=True)
 
+            st.subheader("📊 Company Financials")
+
+            financial_data = {}
+            
+            for t in tickers:
+                try:
+                    info = yf.Ticker(t).info
+                    financial_data[t] = {
+                        "Market Cap ($)": info.get("marketCap", np.nan),
+                        "Trailing EPS": info.get("trailingEps", np.nan),
+                        "Forward EPS": info.get("forwardEps", np.nan),
+                        "Total Revenue ($)": info.get("totalRevenue", np.nan),
+                        "Gross Profits ($)": info.get("grossProfits", np.nan),
+                        "Total Assets ($)": info.get("totalAssets", np.nan),
+                        "Total Debt ($)": info.get("totalDebt", np.nan),
+                        "Beta": info.get("beta", np.nan),
+                    }
+                    
+                except:
+                    financial_data[t] = {
+                        "Market Cap ($)": np.nan,
+                        "Trailing EPS": np.nan,
+                        "Forward EPS": np.nan,
+                        "Total Revenue ($)": np.nan,
+                        "Gross Profits ($)": np.nan,
+                        "Total Assets ($)": np.nan,
+                        "Total Debt ($)": np.nan,
+                        "Beta": np.nan,
+                    }
+
+# Convert to DataFrame and format
+            fin_df = pd.DataFrame.from_dict(financial_data, orient="index")
+            st.dataframe(
+                fin_df.style.format({
+                    "Market Cap ($)": "${:,.0f}",
+                    "Trailing EPS": "{:.2f}",
+                    "Forward EPS": "{:.2f}",
+                    "Total Revenue ($)": "${:,.0f}",
+                    "Gross Profits ($)": "${:,.0f}",
+                    "Total Assets ($)": "${:,.0f}",
+                    "Total Debt ($)": "${:,.0f}",
+                    "Beta": "{:.2f}"
+                })
+            )
+
+
             st.subheader("Correlation Matrix (Returns)")
             with st.expander("ℹ️ What is a correlation matrix?"):
                 st.write("A correlation matrix displays how correlated each of your assets are to each other")
