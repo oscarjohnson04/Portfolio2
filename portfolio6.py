@@ -349,12 +349,26 @@ if ticker_input:
 
             fig2 = go.Figure()
             fig2.add_trace(go.Histogram(x=log_tfsa_returns * 100, nbinsx=500))
-            fig2.add_vline(x=VaR_pct, line=dict(color="red", dash="dash"), name="95% VaR")
-            fig2.add_vline(x=CVaR_pct, line=dict(color="darkred", dash="dot"), name="95% CVaR")
+            fig2.add_vline(x=VaR_pct, line=dict(color="red", dash="dash"))
+            fig2.add_vline(x=CVaR_pct, line=dict(color="darkred", dash="dot"))
+            fig2.add_trace(go.Scatter(
+                x=[None],
+                y=[None],
+                mode="lines",
+                line=dict(color="red", dash="dash"),
+                name="95% VaR"
+            ))
+            fig2.add_trace(go.Scatter(
+                x=[None],
+                y=[None],
+                mode="lines",
+                line=dict(color="darkred", dash="dot"),
+                name="95% CVaR"
+            ))
             st.plotly_chart(fig2, use_container_width=True)
 
-            st.write(f"%95 VaR: {VaR:.2f}%")
-            st.write(f"%95 CVaR: {CVaR:.2f}%")
+            st.write(f"95% VaR: {VaR_pct:.2f}%")
+            st.write(f"95% CVaR: {CVaR_pct:.2f}%")
 
             def compute_drawdown(series):
                 cumulative = (1 + series).cumprod()
