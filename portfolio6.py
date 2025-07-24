@@ -348,7 +348,7 @@ if ticker_input:
             VaR_pct, CVaR_pct = VaR * 100, CVaR * 100
 
             fig2 = go.Figure()
-            fig2.add_trace(go.Histogram(x=log_tfsa_returns * 100, nbinsx=500, showLegend=False))
+            fig2.add_trace(go.Histogram(x=log_tfsa_returns * 100, nbinsx=500, showlegend=False))
             fig2.add_vline(x=VaR_pct, line=dict(color="red", dash="dash"))
             fig2.add_vline(x=CVaR_pct, line=dict(color="darkred", dash="dot"))
             fig2.add_trace(go.Scatter(
