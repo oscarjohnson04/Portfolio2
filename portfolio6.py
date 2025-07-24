@@ -249,11 +249,10 @@ if ticker_input:
                         "Market Cap ($)": info.get("marketCap", np.nan),
                         "Trailing EPS": info.get("trailingEps", np.nan),
                         "Forward EPS": info.get("forwardEps", np.nan),
+                        "PE Ratio": info.get("trailingPE", np.nan),
                         "Total Revenue ($)": info.get("totalRevenue", np.nan),
                         "Gross Profits ($)": info.get("grossProfits", np.nan),
-                        "Total Assets ($)": info.get("totalAssets", np.nan),
-                        "Total Debt ($)": info.get("totalDebt", np.nan),
-                        "Beta": info.get("beta", np.nan),
+                        "Total Debt ($)": info.get("totalDebt", np.nan)
                     }
                     
                 except:
@@ -261,11 +260,10 @@ if ticker_input:
                         "Market Cap ($)": np.nan,
                         "Trailing EPS": np.nan,
                         "Forward EPS": np.nan,
+                        "PE Ratio": np.nan,
                         "Total Revenue ($)": np.nan,
                         "Gross Profits ($)": np.nan,
-                        "Total Assets ($)": np.nan,
-                        "Total Debt ($)": np.nan,
-                        "Beta": np.nan,
+                        "Total Debt ($)": np.nan
                     }
 
 # Convert to DataFrame and format
@@ -275,11 +273,10 @@ if ticker_input:
                     "Market Cap ($)": "${:,.0f}",
                     "Trailing EPS": "{:.2f}",
                     "Forward EPS": "{:.2f}",
+                    "PE Ratio": "{:.2f}",
                     "Total Revenue ($)": "${:,.0f}",
                     "Gross Profits ($)": "${:,.0f}",
-                    "Total Assets ($)": "${:,.0f}",
-                    "Total Debt ($)": "${:,.0f}",
-                    "Beta": "{:.2f}"
+                    "Total Debt ($)": "${:,.0f}"
                 })
             )
 
