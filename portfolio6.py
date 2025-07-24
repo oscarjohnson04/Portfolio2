@@ -274,6 +274,8 @@ if ticker_input:
 
 # Convert to DataFrame and format
             fin_df = pd.DataFrame.from_dict(financial_data, orient="index")
+            fin_df["YOY Earnings Growth"] = fin_df["YOY Earnings Growth"] * 100
+            fin_df["YOY Revenue Growth"] = fin_df["YOY Revenue Growth"] * 100
             st.dataframe(
                 fin_df.style.format({
                     "Market Cap ($)": "${:,.0f}",
