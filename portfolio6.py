@@ -349,11 +349,12 @@ if ticker_input:
 
             fig2 = go.Figure()
             fig2.add_trace(go.Histogram(x=log_tfsa_returns * 100, nbinsx=500))
-            fig2.add_vline(x=VaR_pct, line=dict(color="red", dash="dash"))
-            fig2.add_vline(x=CVaR_pct, line=dict(color="darkred", dash="dot"))
-            fig2.add_annotation(x=VaR_pct, y=-10, text=f"VaR 95%: {VaR_pct:.2f}%", showarrow=True, arrowhead=1, ax=60, ay=10)
-            fig2.add_annotation(x=CVaR_pct, y=-10, text=f"CVaR 95%: {CVaR_pct:.2f}%", showarrow=True, arrowhead=1, ax=-80, ay=10)
+            fig2.add_vline(x=VaR_pct, line=dict(color="red", dash="dash"), name="95% VaR")
+            fig2.add_vline(x=CVaR_pct, line=dict(color="darkred", dash="dot"), name="95% CVaR")
             st.plotly_chart(fig2, use_container_width=True)
+
+            st.write(f"%95 VaR: {VaR:.2f}%")
+            st.write(f"%95 CVaR: {CVaR:.2f}%")
 
             def compute_drawdown(series):
                 cumulative = (1 + series).cumprod()
@@ -367,7 +368,7 @@ if ticker_input:
             fig5.add_trace(go.Scatter(x=drawdowns.index, y=drawdowns, name="Drawdowns"))
             fig5.update_layout(template='plotly_white')
             st.plotly_chart(fig5, use_container_width=True)
-            st.write(f"📉 Max Drawdown: {drawdowns.min()*100:.2f}%")
+            st.write(f"Max Drawdown: {drawdowns.min()*100:.2f}%")
 
             # --- Sharpe Ratio ---
             st.subheader("Sharpe Ratio")
