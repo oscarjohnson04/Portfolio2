@@ -287,7 +287,7 @@ if ticker_input:
                     "YOY Revenue Growth": "{:.2f}",
                     "Total Revenue ($)": "${:,.0f}",
                     "Gross Profits ($)": "${:,.0f}",
-                    "Net Profit Margin ($)": "${:,.0f},
+                    "Net Profit Margin ($)": "${:,.0f}",
                     "Total Debt ($)": "${:,.0f}"
                 })
             )
