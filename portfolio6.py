@@ -255,7 +255,6 @@ if ticker_input:
                         "YOY Revenue Growth": info.get("revenueGrowth", np.nan),
                         "Total Revenue ($)": info.get("totalRevenue", np.nan),
                         "Gross Profits ($)": info.get("grossProfits", np.nan),
-                        "Gross Profit Margin ($)": info.get("grossMargins", np.nan),
                         "Total Debt ($)": info.get("totalDebt", np.nan)
                     }
                     
@@ -270,7 +269,6 @@ if ticker_input:
                         "YOY Revenue Growth": np.nan,
                         "Total Revenue ($)": np.nan,
                         "Gross Profits ($)": np.nan,
-                        "Gross Profit Margin ($)": np.nan,
                         "Total Debt ($)": np.nan
                     }
 
@@ -287,7 +285,6 @@ if ticker_input:
                     "YOY Revenue Growth": "{:.2f}",
                     "Total Revenue ($)": "${:,.0f}",
                     "Gross Profits ($)": "${:,.0f}",
-                    "Gross Profit Margin ($)": "${:,.0f}",
                     "Total Debt ($)": "${:,.0f}"
                 })
             )
