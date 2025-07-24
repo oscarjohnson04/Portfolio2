@@ -73,7 +73,7 @@ if ticker_input:
             gu = fred.get_series('GEPUCURRENT', start, end).iloc[-1]
 
             st.sidebar.title("Latest US Macro Data")
-            st.sidebar.metric("Real GDP(In Billions)", f"${realgdp:.2f}")
+            st.sidebar.metric("Real GDP (In Billions)", f"${realgdp:.2f}")
             st.sidebar.metric("Unemployment Rate", f"{unrate:.2f}%")
             st.sidebar.metric("CPI", f"{cpi:.2f}%")
             st.sidebar.metric("Debt/GDP Ratio", f"{debtgdp:.2f}")
@@ -286,8 +286,8 @@ if ticker_input:
                         "Forward EPS": info.get("forwardEps", np.nan),
                         "PE Ratio": info.get("trailingPE", np.nan),
                         "Return On Equity": info.get("returnOnEquity", np.nan),
-                        "YOY Earnings Growth": info.get("earningsGrowth", np.nan),
-                        "YOY Revenue Growth": info.get("revenueGrowth", np.nan),
+                        "YOY Earnings Growth (%)": info.get("earningsGrowth", np.nan),
+                        "YOY Revenue Growth (%)": info.get("revenueGrowth", np.nan),
                         "Total Revenue ($)": info.get("totalRevenue", np.nan),
                         "Gross Profits ($)": info.get("grossProfits", np.nan),
                         "Total Debt ($)": info.get("totalDebt", np.nan)
@@ -300,8 +300,8 @@ if ticker_input:
                         "Forward EPS": np.nan,
                         "PE Ratio": np.nan,
                         "Return On Equity": np.nan,
-                        "YOY Earnings Growth": np.nan,
-                        "YOY Revenue Growth": np.nan,
+                        "YOY Earnings Growth (%)": np.nan,
+                        "YOY Revenue Growth (%)": np.nan,
                         "Total Revenue ($)": np.nan,
                         "Gross Profits ($)": np.nan,
                         "Total Debt ($)": np.nan
@@ -309,8 +309,8 @@ if ticker_input:
 
 # Convert to DataFrame and format
             fin_df = pd.DataFrame.from_dict(financial_data, orient="index")
-            fin_df["YOY Earnings Growth (%)"] = fin_df["YOY Earnings Growth"] * 100
-            fin_df["YOY Revenue Growth (%)"] = fin_df["YOY Revenue Growth"] * 100
+            fin_df["YOY Earnings Growth (%)"] = fin_df["YOY Earnings Growth (%)"] * 100
+            fin_df["YOY Revenue Growth (%)"] = fin_df["YOY Revenue Growth (%)"] * 100
             st.dataframe(
                 fin_df.style.format({
                     "Market Cap ($)": "${:,.0f}",
