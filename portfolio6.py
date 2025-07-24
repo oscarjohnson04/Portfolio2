@@ -11,6 +11,7 @@ from tensorflow.keras.callbacks import EarlyStopping
 from sklearn.preprocessing import MinMaxScaler
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
+from fredapi import Fred
 
 st.set_page_config(layout="wide")
 
@@ -33,6 +34,36 @@ benchmark_options = {
 }
 benchmark_name = st.sidebar.selectbox("Choose Benchmark:", list(benchmark_options.keys()))
 benchmark_ticker = benchmark_options[benchmark_name]
+
+# macrodata
+fred = Fred(api_key='00edddc751dd47fb05bd7483df1ed0a3')
+
+realgdp = fred.get_series('GDPC1', start, end).iloc[-1]
+unrate = fred.get_series('DGS3MO', start, end).iloc[-1]
+cpi = fred.get_series('MEDCPIM158SFRBCLE', start, end).iloc[-1]
+debtgdp = fred.get_series('GFDEGDQ188S', start, end).iloc[-1]
+fedrate = fred.get_series('DFEDTARU', start, end).iloc[-1]
+fedfundrate = fred.get_series('DFF', start, end).iloc[-1]
+trate = fred.get_series('DGS3MO', start, end).iloc[-1]
+tenrate = fred.get_series('DGS10', start, end).iloc[-1]
+longrate = fred.get_series('DGS30', start, end).iloc[-1]
+vix = fred.get_series('VIXCLS', start, end).iloc[-1]
+usu = fred.get_series('USEPUINDXD', start, end).iloc[-1]
+gu = fred.get_series('GEPUCURRENT', start, end).iloc[-1]
+
+st.sidebar.title("Latest US Macro Data")
+st.sidebar.metric("Real GDP", f"{realgdp:.2f}")
+st.sidebar.metric("Unemployment", f"{unrate:.2f}%")
+st.sidebar.metric("CPI", f"{cpi:.2f}%")
+st.sidebar.metric("Debt/GDP Ratio", f"{debtgdp:.2f}")
+st.sidebar.metric("Federal Reserve Interest Rate", f"{fedrate:.2f}%")
+st.sidebar.metric("Federal Funds Rate", f"{fedfundrate:.2f}%")
+st.sidebar.metric("3 month T-Bill yield", f"{trate:.2f}%")
+st.sidebar.metric("10 year bond yield", f"{tenrate:.2f}%")
+st.sidebar.metric("30 year bond yield", f"{longrate:.2f}%")
+st.sidebar.metric("VIX", f"{vix:.2f}")
+st.sidebar.metric("US Economic Policy Uncertainty Index", f"{usu:.2f}")
+st.sidebar.metric("Global Economic Policy Uncertainty Index", f"{gu:.2f}")
 
 # --- Ticker Input ---
 ticker_input = st.text_input("Enter Tickers (comma-separated)", value="AAPL, MSFT, TSLA")
@@ -274,8 +305,8 @@ if ticker_input:
 
 # Convert to DataFrame and format
             fin_df = pd.DataFrame.from_dict(financial_data, orient="index")
-            fin_df["YOY Earnings Growth"] = fin_df["YOY Earnings Growth"] * 100
-            fin_df["YOY Revenue Growth"] = fin_df["YOY Revenue Growth"] * 100
+            fin_df["YOY Earnings Growth (%)"] = fin_df["YOY Earnings Growth"] * 100
+            fin_df["YOY Revenue Growth (%)"] = fin_df["YOY Revenue Growth"] * 100
             st.dataframe(
                 fin_df.style.format({
                     "Market Cap ($)": "${:,.0f}",
@@ -283,8 +314,8 @@ if ticker_input:
                     "Forward EPS": "{:.2f}",
                     "PE Ratio": "{:.2f}",
                     "Return On Equity": "{:.2f}",
-                    "YOY Earnings Growth": "{:.2f}",
-                    "YOY Revenue Growth": "{:.2f}",
+                    "YOY Earnings Growth (%)": "{:.2f}",
+                    "YOY Revenue Growth (%): "{:.2f}",
                     "Total Revenue ($)": "${:,.0f}",
                     "Gross Profits ($)": "${:,.0f}",
                     "Total Debt ($)": "${:,.0f}"
