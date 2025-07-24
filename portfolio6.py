@@ -250,8 +250,12 @@ if ticker_input:
                         "Trailing EPS": info.get("trailingEps", np.nan),
                         "Forward EPS": info.get("forwardEps", np.nan),
                         "PE Ratio": info.get("trailingPE", np.nan),
+                        "Return On Equity": info.get("returnOnEquity", np.nan),
+                        "YOY Earnings Growth": info.get("earningsGrowth", np.nan),
+                        "YOY Revenue Growth": info.get("revenueGrowth, np.nan),
                         "Total Revenue ($)": info.get("totalRevenue", np.nan),
                         "Gross Profits ($)": info.get("grossProfits", np.nan),
+                        "Net Profit Margin ($)": info.get("profitMargins", np.nan),
                         "Total Debt ($)": info.get("totalDebt", np.nan)
                     }
                     
@@ -261,8 +265,12 @@ if ticker_input:
                         "Trailing EPS": np.nan,
                         "Forward EPS": np.nan,
                         "PE Ratio": np.nan,
+                        "Return On Equity": np.nan,
+                        "YOY Earnings Growth": np.nan,
+                        "YOY Revenue Growth": np.nan,
                         "Total Revenue ($)": np.nan,
                         "Gross Profits ($)": np.nan,
+                        "Net Profit Margin ($)": np.nan,
                         "Total Debt ($)": np.nan
                     }
 
@@ -274,8 +282,12 @@ if ticker_input:
                     "Trailing EPS": "{:.2f}",
                     "Forward EPS": "{:.2f}",
                     "PE Ratio": "{:.2f}",
+                    "Return On Equity": "{:.2f}",
+                    "YOY Earnings Growth": "{:.2f}",
+                    "YOY Revenue Growth": "{:.2f}",
                     "Total Revenue ($)": "${:,.0f}",
                     "Gross Profits ($)": "${:,.0f}",
+                    "Net Profit Margin ($)": "${:,.0f},
                     "Total Debt ($)": "${:,.0f}"
                 })
             )
