@@ -50,6 +50,7 @@ fedfundrate = fred.get_series('DFF', start, end).iloc[-1]
 trate = fred.get_series('DGS3MO', start, end).iloc[-1]
 tenrate = fred.get_series('DGS10', start, end).iloc[-1]
 longrate = fred.get_series('DGS30', start, end).iloc[-1]
+corprate = fred.get_series('DAAA', start, end).iloc[-1]
 vix = fred.get_series('VIXCLS', start, end).iloc[-1]
 usu = fred.get_series('USEPUINDXD', start, end).iloc[-1]
 gu = fred.get_series('GEPUCURRENT', start, end).iloc[-1]
@@ -64,6 +65,7 @@ st.sidebar.metric("Federal Funds Rate", f"{fedfundrate:.2f}%")
 st.sidebar.metric("3 month T-Bill yield", f"{trate:.2f}%")
 st.sidebar.metric("10 year bond yield", f"{tenrate:.2f}%")
 st.sidebar.metric("30 year bond yield", f"{longrate:.2f}%")
+st.sidebar.metric("Moody's AAA Corporate Bond Yield", f"{corprate:.2f}%")
 st.sidebar.metric("VIX", f"{vix:.2f}")
 st.sidebar.metric("US Economic Policy Uncertainty", f"{usu:.2f}")
 st.sidebar.metric("Global Economic Policy Uncertainty", f"{gu:.2f}")
