@@ -387,7 +387,7 @@ if ticker_input:
             u = log_tfsa_returns.mean()
             drift = u - 0.5 * log_tfsa_returns.var()
             t_intervals = 1000
-            iterations = 250
+            iterations = 125
             daily_returns = np.exp(drift + daily_std * norm.ppf(np.random.rand(t_intervals, iterations)))
             s0 = portfolio_ts.iloc[-1]
             price_list = np.zeros_like(daily_returns)
