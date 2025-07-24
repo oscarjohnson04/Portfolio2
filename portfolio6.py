@@ -55,8 +55,8 @@ usu = fred.get_series('USEPUINDXD', start, end).iloc[-1]
 gu = fred.get_series('GEPUCURRENT', start, end).iloc[-1]
 
 st.sidebar.title("Latest US Macro Data")
-st.sidebar.metric("Real GDP", f"{realgdp:.2f}")
-st.sidebar.metric("Unemployment", f"{unrate:.2f}%")
+st.sidebar.metric("Real GDP(In Billions)", f"${realgdp:.2f}")
+st.sidebar.metric("Unemployment Rate", f"{unrate:.2f}%")
 st.sidebar.metric("CPI", f"{cpi:.2f}%")
 st.sidebar.metric("Debt/GDP Ratio", f"{debtgdp:.2f}")
 st.sidebar.metric("Federal Reserve Interest Rate", f"{fedrate:.2f}%")
@@ -65,8 +65,8 @@ st.sidebar.metric("3 month T-Bill yield", f"{trate:.2f}%")
 st.sidebar.metric("10 year bond yield", f"{tenrate:.2f}%")
 st.sidebar.metric("30 year bond yield", f"{longrate:.2f}%")
 st.sidebar.metric("VIX", f"{vix:.2f}")
-st.sidebar.metric("US Economic Policy Uncertainty Index", f"{usu:.2f}")
-st.sidebar.metric("Global Economic Policy Uncertainty Index", f"{gu:.2f}")
+st.sidebar.metric("US Economic Policy Uncertainty", f"{usu:.2f}")
+st.sidebar.metric("Global Economic Policy Uncertainty", f"{gu:.2f}")
 
 # --- Ticker Input ---
 ticker_input = st.text_input("Enter Tickers (comma-separated)", value="AAPL, MSFT, TSLA")
