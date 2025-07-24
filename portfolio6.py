@@ -314,8 +314,8 @@ if ticker_input:
                     "Forward EPS": "{:.2f}",
                     "PE Ratio": "{:.2f}",
                     "Return On Equity": "{:.2f}",
-                    "YOY Earnings Growth (%)": "{:.2f}",
-                    "YOY Revenue Growth (%): "{:.2f}",
+                    "YOY Earnings Growth (%)": "{:.2f}%",
+                    "YOY Revenue Growth (%): "{:.2f}%",
                     "Total Revenue ($)": "${:,.0f}",
                     "Gross Profits ($)": "${:,.0f}",
                     "Total Debt ($)": "${:,.0f}"
