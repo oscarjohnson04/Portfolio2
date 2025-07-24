@@ -238,7 +238,7 @@ if ticker_input:
                 st.subheader("Total Dividend Income per Ticker")
                 st.plotly_chart(fig_div, use_container_width=True)
 
-            st.subheader("📊 Company Financials")
+            st.subheader("Company Financials")
 
             financial_data = {}
             
