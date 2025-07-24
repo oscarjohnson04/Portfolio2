@@ -252,7 +252,7 @@ if ticker_input:
                         "PE Ratio": info.get("trailingPE", np.nan),
                         "Return On Equity": info.get("returnOnEquity", np.nan),
                         "YOY Earnings Growth": info.get("earningsGrowth", np.nan),
-                        "YOY Revenue Growth": info.get("revenueGrowth, np.nan),
+                        "YOY Revenue Growth": info.get("revenueGrowth", np.nan),
                         "Total Revenue ($)": info.get("totalRevenue", np.nan),
                         "Gross Profits ($)": info.get("grossProfits", np.nan),
                         "Net Profit Margin ($)": info.get("profitMargins", np.nan),
