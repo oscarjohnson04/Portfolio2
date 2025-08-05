@@ -35,6 +35,34 @@ benchmark_options = {
 benchmark_name = st.sidebar.selectbox("Choose Benchmark:", list(benchmark_options.keys()))
 benchmark_ticker = benchmark_options[benchmark_name]
 
+@st.cache_data(show_spinner=True, ttl=60 * 15)
+def fetch_news(query: str, page_size: int, sort_by: str, use_dates: bool, from_date, to_date):
+    """
+    Fetch news from NewsAPI's /everything endpoint. Optionally filter by date.
+    """
+    url = "https://newsapi.org/v2/everything"
+    params = {
+        "q": query,
+        "language": "en",
+        "pageSize": int(page_size),
+        "sortBy": sort_by,
+        "apiKey": NEWS_API_KEY
+    }
+    if use_dates and from_date:
+        params["from"] = str(from_date)
+    if use_dates and to_date:
+        params["to"] = str(to_date)
+
+    try:
+        r = requests.get(url, params=params, timeout=15)
+        r.raise_for_status()
+        payload = r.json()
+        if payload.get("status") != "ok":
+            return [], f"NewsAPI error: {payload.get('message', 'Unknown error')}"
+        return payload.get("articles", []), None
+    except Exception as e:
+        return [], f"Request failed: {e}"
+
 
 tab1, tab2 = st.tabs(["Portfolio Analysis", "News"])
 # --- Ticker Input ---
