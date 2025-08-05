@@ -537,16 +537,82 @@ with tab1:
 
 with tab2:
     NEWS_API_KEY = "80f3080a10da4d91809c5e53cf0d9828"
+    st.subheader("Historical Yield Plotter")
+
+    selected_bonds = st.multiselect(
+        "Choose bonds/series to plot",
+        options=list(yield_series_ids.keys()),
+        default=["US 10 Year", "US 1 Year"]
+    )
+
+    col_left, col_right = st.columns(2)
+    with col_left:
+        start_date = st.date_input("Start date", value=START, key="hist_start")
+    with col_right:
+        end_date = st.date_input("End date", value=END, key="hist_end")
+
+    if start_date >= end_date:
+        st.warning("Start date must be before end date.")
+    elif len(selected_bonds) == 0:
+        st.info("Select at least one series to plot.")
+    else:
+        df_hist = fetch_historical_yields(start_date, end_date, selected_bonds, yield_series_ids)
+
+        # Only compute spread when exactly two series are present
+        if df_hist.shape[1] == 2:
+            df_hist['Spread'] = df_hist.iloc[:, 0] - df_hist.iloc[:, 1]
+
+        st.dataframe(df_hist.tail(), use_container_width=True)
+
+        # Plot all series except 'Spread'
+        fig_hist = go.Figure()
+        for col in df_hist.columns:
+            if col != "Spread":
+                fig_hist.add_trace(go.Scatter(x=df_hist.index, y=df_hist[col], mode="lines", name=col))
+        fig_hist.update_layout(
+            title="Historical Yields",
+            xaxis_title="Date", yaxis_title="Yield (%)", template="plotly_white"
+        )
+        st.plotly_chart(fig_hist, use_container_width=True)
+
+        # Plot spread if exists
+        if "Spread" in df_hist.columns:
+            fig_spread = go.Figure()
+            fig_spread.add_trace(go.Scatter(x=df_hist.index, y=df_hist["Spread"], mode="lines", name="Spread"))
+            fig_spread.update_layout(
+                title=f"Spread: {df_hist.columns[0]} - {df_hist.columns[1]}",
+                xaxis_title="Date", yaxis_title="Spread (pp)", template="plotly_white"
+            )
+            st.plotly_chart(fig_spread, use_container_width=True)
+
+        # Download
+        csv_hist = df_hist.to_csv().encode("utf-8")
+        st.download_button(
+            label="Download historical data (CSV)",
+            data=csv_hist,
+            file_name="historical_yields.csv",
+            mime="text/csv"
+        )
+
+# ---------------- TAB 3 ----------------
+with tab3:
     st.subheader("Latest News on Bonds, Rates & Macro")
 
-    query = st.text_input("Search query", value="US Treasury yields OR bond market OR Federal Reserve")
-    page_size = st.number_input("Articles to show", min_value=3, max_value=30, value=10, step=1)
-    sort_by = st.selectbox("Sort by", ["publishedAt", "relevancy", "popularity"], index=0)
+    colq1, colq2, colq3 = st.columns([2, 1, 1])
+    with colq1:
+        query = st.text_input("Search query", value="US Treasury yields OR bond market OR Federal Reserve")
+    with colq2:
+        page_size = st.number_input("Articles to show", min_value=3, max_value=30, value=10, step=1)
+    with colq3:
+        sort_by = st.selectbox("Sort by", ["Date", "Relevancy", "Popularity"], index=0)
 
-    use_dates = st.checkbox("Filter by date range", value=False)
+    use_dates = st.toggle("Filter by date range", value=False)
     if use_dates:
-        from_date = st.date_input("From date", value=dt.date.today() - dt.timedelta(days=30))
-        to_date = st.date_input("To date", value=dt.date.today())
+        c1, c2 = st.columns(2)
+        with c1:
+            from_date = st.date_input("From date", value=dt.date.today() - dt.timedelta(days=30), key="news_from")
+        with c2:
+            to_date = st.date_input("To date", value=dt.date.today(), key="news_to")
         if from_date > to_date:
             st.warning("'From date' must be on or before 'To date'.")
     else:
@@ -560,7 +626,30 @@ with tab2:
     elif not articles:
         st.info("No articles found. Try adjusting your query or date range.")
     else:
-        compact = st.checkbox("Compact view", value=False)
+        compact = st.toggle("Compact view", value=False)
         for a in articles:
-            # Your article rendering code here
-            pass
+            title = a.get("title") or "Untitled"
+            url = a.get("url") or ""
+            source = (a.get("source") or {}).get("name") or "Unknown source"
+            published = (a.get("Date") or "")[:10]
+            desc = a.get("description") or ""
+            thumb = a.get("urlToImage")
+
+            if compact:
+                st.markdown(f"- **[{title}]({url})** — {source} · {published}")
+            else:
+                with st.container(border=True):
+                    if thumb:
+                        colA, colB = st.columns([1, 3])
+                        with colA:
+                            st.image(thumb, use_container_width=True)
+                        with colB:
+                            st.markdown(f"### [{title}]({url})")
+                            st.caption(f"{source} · {published}")
+                            if desc:
+                                st.write(desc)
+                    else:
+                        st.markdown(f"### [{title}]({url})")
+                        st.caption(f"{source} · {published}")
+                        if desc:
+                            st.write(desc)
