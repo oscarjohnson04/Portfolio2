@@ -12,6 +12,7 @@ from sklearn.preprocessing import MinMaxScaler
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 from fredapi import Fred
+import requests
 
 st.set_page_config(layout="wide")
 
