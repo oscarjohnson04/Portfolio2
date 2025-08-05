@@ -64,6 +64,36 @@ def fetch_news(query: str, page_size: int, sort_by: str, use_dates: bool, from_d
     except Exception as e:
         return [], f"Request failed: {e}"
 
+fred = Fred(api_key='00edddc751dd47fb05bd7483df1ed0a3')
+
+start = dt.datetime(2015, 1, 1)
+end = dt.datetime.now()
+
+sidebar_series_ids = {
+    "Real GDP (Billions, chained 2017$)": "GDPC1",
+    "Unemployment proxy (3M T-Bill)": "DGS3MO",
+    "Core Median CPI (Cleveland Fed)": "MEDCPIM158SFRBCLE",
+    "Debt/GDP Ratio": "GFDEGDQ188S",
+    "Fed Target Upper Bound": "DFEDTARU",
+    "Effective Fed Funds Rate": "DFF",
+    "3M T-Bill Yield": "DGS3MO",
+    "10Y Treasury Yield": "DGS10",
+    "30Y Treasury Yield": "DGS30",
+    "Moody's AAA Corp Yield": "DAAA",
+    "VIX": "VIXCLS",
+    "US Econ Policy Uncertainty": "USEPUINDXD",
+    "Global Econ Policy Uncertainty": "GEPUCURRENT"
+}
+
+st.sidebar.title("Latest US Macro Data")
+latest_data = fetch_multiple_latest_series(sidebar_series_ids, START, END)
+for label, value in latest_data.items():
+    suffix = "%" if any(k in label.lower() for k in ["rate", "yield", "cpi", "uncertainty"]) else ""
+    prefix = "$" if "gdp" in label.lower() else ""
+    if np.isnan(value):
+        st.sidebar.metric(label, "N/A")
+    else:
+        st.sidebar.metric(label, f"{prefix}{value:,.2f}{suffix}")
 
 tab1, tab2 = st.tabs(["Portfolio Analysis", "News"])
 # --- Ticker Input ---
@@ -84,42 +114,6 @@ with tab1:
             with st.spinner("Fetching data and computing portfolio..."):
 
             # --- Data Download ---
-
-            # macrodata
-                fred = Fred(api_key='00edddc751dd47fb05bd7483df1ed0a3')
-
-                start = dt.datetime(2015, 1, 1)
-                end = dt.datetime.now()
-
-                realgdp = fred.get_series('GDPC1', start, end).iloc[-1]
-                unrate = fred.get_series('DGS3MO', start, end).iloc[-1]
-                cpi = fred.get_series('MEDCPIM158SFRBCLE', start, end).iloc[-1]
-                debtgdp = fred.get_series('GFDEGDQ188S', start, end).iloc[-1]
-                fedrate = fred.get_series('DFEDTARU', start, end).iloc[-1]
-                fedfundrate = fred.get_series('DFF', start, end).iloc[-1]
-                trate = fred.get_series('DGS3MO', start, end).iloc[-1]
-                tenrate = fred.get_series('DGS10', start, end).iloc[-1]
-                longrate = fred.get_series('DGS30', start, end).iloc[-1]
-                corprate = fred.get_series('DAAA', start, end).iloc[-1]
-                vix = fred.get_series('VIXCLS', start, end).iloc[-1]
-                usu = fred.get_series('USEPUINDXD', start, end).iloc[-1]
-                gu = fred.get_series('GEPUCURRENT', start, end).iloc[-1]
-
-                st.sidebar.title("Latest US Macro Data")
-                st.sidebar.metric("Real GDP (In Billions)", f"${realgdp:.2f}")
-                st.sidebar.metric("Unemployment Rate", f"{unrate:.2f}%")
-                st.sidebar.metric("CPI", f"{cpi:.2f}%")
-                st.sidebar.metric("Debt/GDP Ratio", f"{debtgdp:.2f}")
-                st.sidebar.metric("Federal Reserve Interest Rate", f"{fedrate:.2f}%")
-                st.sidebar.metric("Federal Funds Rate", f"{fedfundrate:.2f}%")
-                st.sidebar.metric("3 month T-Bill yield", f"{trate:.2f}%")
-                st.sidebar.metric("10 year bond yield", f"{tenrate:.2f}%")
-                st.sidebar.metric("30 year bond yield", f"{longrate:.2f}%")
-                st.sidebar.metric("Moody's AAA Corporate Bond Yield", f"{corprate:.2f}%")
-                st.sidebar.metric("VIX", f"{vix:.2f}")
-                st.sidebar.metric("US Economic Policy Uncertainty", f"{usu:.2f}")
-                st.sidebar.metric("Global Economic Policy Uncertainty", f"{gu:.2f}")
-    
                 units_arr = np.array([units[t] for t in tickers])
                 df = yf.download(['^GSPC'] + tickers, start, end, multi_level_index = False)
                 Close = df['Close'][['^GSPC'] + tickers]
