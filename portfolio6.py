@@ -85,31 +85,7 @@ fred = Fred(api_key='00edddc751dd47fb05bd7483df1ed0a3')
 start = dt.datetime(2015, 1, 1)
 end = dt.datetime.now()
 
-sidebar_series_ids = {
-    "Real GDP (Billions, chained 2017$)": "GDPC1",
-    "Unemployment proxy (3M T-Bill)": "DGS3MO",
-    "Core Median CPI (Cleveland Fed)": "MEDCPIM158SFRBCLE",
-    "Debt/GDP Ratio": "GFDEGDQ188S",
-    "Fed Target Upper Bound": "DFEDTARU",
-    "Effective Fed Funds Rate": "DFF",
-    "3M T-Bill Yield": "DGS3MO",
-    "10Y Treasury Yield": "DGS10",
-    "30Y Treasury Yield": "DGS30",
-    "Moody's AAA Corp Yield": "DAAA",
-    "VIX": "VIXCLS",
-    "US Econ Policy Uncertainty": "USEPUINDXD",
-    "Global Econ Policy Uncertainty": "GEPUCURRENT"
-}
 
-st.sidebar.title("Latest US Macro Data")
-latest_data = fetch_multiple_latest_series(sidebar_series_ids, start, end)
-for label, value in latest_data.items():
-    suffix = "%" if any(k in label.lower() for k in ["rate", "yield", "cpi", "uncertainty"]) else ""
-    prefix = "$" if "gdp" in label.lower() else ""
-    if np.isnan(value):
-        st.sidebar.metric(label, "N/A")
-    else:
-        st.sidebar.metric(label, f"{prefix}{value:,.2f}{suffix}")
 
 tab1, tab2 = st.tabs(["Portfolio Analysis", "News"])
 # --- Ticker Input ---
@@ -130,6 +106,32 @@ with tab1:
             with st.spinner("Fetching data and computing portfolio..."):
 
             # --- Data Download ---
+                sidebar_series_ids = {
+                    "Real GDP (Billions, chained 2017$)": "GDPC1",
+                    "Unemployment proxy (3M T-Bill)": "DGS3MO",
+                    "Core Median CPI (Cleveland Fed)": "MEDCPIM158SFRBCLE",
+                    "Debt/GDP Ratio": "GFDEGDQ188S",
+                    "Fed Target Upper Bound": "DFEDTARU",
+                    "Effective Fed Funds Rate": "DFF",
+                    "3M T-Bill Yield": "DGS3MO",
+                    "10Y Treasury Yield": "DGS10",
+                    "30Y Treasury Yield": "DGS30",
+                    "Moody's AAA Corp Yield": "DAAA",
+                    "VIX": "VIXCLS",
+                    "US Econ Policy Uncertainty": "USEPUINDXD",
+                    "Global Econ Policy Uncertainty": "GEPUCURRENT"
+                }
+
+                st.sidebar.title("Latest US Macro Data")
+                latest_data = fetch_multiple_latest_series(sidebar_series_ids, start, end)
+                for label, value in latest_data.items():
+                    suffix = "%" if any(k in label.lower() for k in ["rate", "yield", "cpi", "uncertainty"]) else ""
+                    prefix = "$" if "gdp" in label.lower() else ""
+                    if np.isnan(value):
+                        st.sidebar.metric(label, "N/A")
+                    else:
+                        st.sidebar.metric(label, f"{prefix}{value:,.2f}{suffix}")
+                
                 units_arr = np.array([units[t] for t in tickers])
                 df = yf.download(['^GSPC'] + tickers, start, end, multi_level_index = False)
                 Close = df['Close'][['^GSPC'] + tickers]
