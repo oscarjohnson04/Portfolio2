@@ -86,7 +86,7 @@ sidebar_series_ids = {
 }
 
 st.sidebar.title("Latest US Macro Data")
-latest_data = fetch_multiple_latest_series(sidebar_series_ids, START, END)
+latest_data = fetch_multiple_latest_series(sidebar_series_ids, start, end)
 for label, value in latest_data.items():
     suffix = "%" if any(k in label.lower() for k in ["rate", "yield", "cpi", "uncertainty"]) else ""
     prefix = "$" if "gdp" in label.lower() else ""
