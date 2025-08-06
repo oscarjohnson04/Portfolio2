@@ -238,15 +238,35 @@ with tab1:
                     
                 
                 # --- Timeline Plot ---
-                st.subheader(f"Portfolio vs {benchmark_name}")
+                st.subheader(f"Portfolio vs {benchmark_name} (Indexed to 100)")
+                
                 close_prices = stocklist['Close'][tickers]
-                benchmark_data = yf.download(benchmark_ticker, start, end, multi_level_index = False)
-                portfolio_ts = (close_prices * units_arr).sum(axis=1)
-    
-                fig1 = make_subplots(specs=[[{"secondary_y": True}]])
-                fig1.add_trace(go.Scatter(x=portfolio_ts.index, y=portfolio_ts, name="Portfolio"), secondary_y=False)
-                fig1.add_trace(go.Scatter(x=benchmark_data.index, y=benchmark_data['Close'], name=benchmark_name), secondary_y=True)
-                fig1.update_layout(title=f"Portfolio Value vs {benchmark_name}", template='plotly_white')
+                benchmark_data = yf.download(benchmark_ticker, start, end, multi_level_index=False)
+                
+                # Portfolio total value over time
+                portfolio_ts = (close_prices * units_arr).sum(axis=1).dropna()
+                
+                # Align dates (use only dates present in BOTH series)
+                common_dates = portfolio_ts.index.intersection(benchmark_data.index)
+                portfolio_ts = portfolio_ts.loc[common_dates]
+                index_ts = benchmark_data.loc[common_dates, 'Close'].dropna()
+                common_dates = portfolio_ts.index.intersection(index_ts.index)
+                portfolio_ts = portfolio_ts.loc[common_dates]
+                index_ts = index_ts.loc[common_dates]
+                
+                # Rebase both to 100 at the first common date
+                portfolio_idx = 100 * (portfolio_ts / portfolio_ts.iloc[0])
+                index_idx = 100 * (index_ts / index_ts.iloc[0])
+                
+                fig1 = go.Figure()
+                fig1.add_trace(go.Scatter(x=portfolio_idx.index, y=portfolio_idx, name="Portfolio"))
+                fig1.add_trace(go.Scatter(x=index_idx.index, y=index_idx, name=benchmark_name))
+                fig1.update_layout(
+                    title=f"Portfolio vs {benchmark_name} — Indexed (Start = 100)",
+                    xaxis_title="Date",
+                    yaxis_title="Index (Start = 100)",
+                    template="plotly_white",
+                )
                 st.plotly_chart(fig1, use_container_width=True)
     
                 daily_change = np.log(portfolio_ts/portfolio_ts.shift(1)).dropna()
