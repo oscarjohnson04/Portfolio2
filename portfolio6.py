@@ -64,6 +64,22 @@ def fetch_news(query: str, page_size: int, sort_by: str, use_dates: bool, from_d
     except Exception as e:
         return [], f"Request failed: {e}"
 
+@st.cache_data(show_spinner=False)
+def fetch_multiple_latest_series(series_ids: dict, start: dt.date, end: dt.date) -> dict:
+    """Fetch the last available value for each series id in series_ids."""
+    out = {}
+    for label, code in series_ids.items():
+        try:
+            s = fred.get_series(code, start, end)
+            if len(s) == 0:
+                out[label] = np.nan
+            else:
+                out[label] = float(s.iloc[-1])
+        except Exception:
+            out[label] = np.nan
+    return out
+
+
 fred = Fred(api_key='00edddc751dd47fb05bd7483df1ed0a3')
 
 start = dt.datetime(2015, 1, 1)
