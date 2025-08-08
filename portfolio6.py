@@ -82,7 +82,7 @@ def fetch_multiple_latest_series(series_ids: dict, start: dt.date, end: dt.date)
 
 fred = Fred(api_key='00edddc751dd47fb05bd7483df1ed0a3')
 
-start = dt.datetime(2015, 1, 1)
+start1 = dt.datetime(2015, 1, 1)
 end = dt.datetime.now()
 
 
@@ -90,6 +90,8 @@ end = dt.datetime.now()
 tab1, tab2 = st.tabs(["Portfolio Analysis", "News"])
 # --- Ticker Input ---
 with tab1:
+
+    start = st.date_input("First date", value=today, min_value=dt.date(2000, 1, 1), key="yc_d1")
     
     ticker_input = st.text_input("Enter Tickers (comma-separated)", value="AAPL, MSFT, TSLA")
 
@@ -123,7 +125,7 @@ with tab1:
                 }
 
                 st.sidebar.title("Latest US Macro Data")
-                latest_data = fetch_multiple_latest_series(sidebar_series_ids, start, end)
+                latest_data = fetch_multiple_latest_series(sidebar_series_ids, start1, end)
                 for label, value in latest_data.items():
                     suffix = "%" if any(k in label.lower() for k in ["rate", "yield", "cpi", "uncertainty"]) else ""
                     prefix = "$" if "gdp" in label.lower() else ""
