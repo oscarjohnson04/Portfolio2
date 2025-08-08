@@ -11,3 +11,5 @@ What it does:
   + Tells you what would be your optimal weights to maximise returns and minimise volatility in the stocks you are interested in
   + Monte Carlo simulation over 1000 trading days
   + LSTM portfolio return for next month (this is experimental so any results from this should be taken with a grain of salt)
+  + Contains sidebar of relevant US macroeconomic data from FRED
+  + Provides a news tab, allowing users to find articles they would find relevant
