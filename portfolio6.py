@@ -194,7 +194,7 @@ with tab1:
                 # Display
                 st.subheader("Portfolio Dashboard")
                 st.dataframe(portfolio)
-                 with st.expander("ℹ️ Information about Beta"):
+                with st.expander("ℹ️ Information about Beta"):
                     st.write("The beta that is calculated here is based on the benchmark that has been chosen")
     
                 sector_map = {}
