@@ -91,7 +91,7 @@ tab1, tab2 = st.tabs(["Portfolio Analysis", "News"])
 # --- Ticker Input ---
 with tab1:
 
-    start = st.date_input("First date", value=today, min_value=dt.date(2000, 1, 1), key="yc_d1")
+    start = st.date_input("Start date", value=today, min_value=dt.date(2000, 1, 1), key="yc_d1")
     
     ticker_input = st.text_input("Enter Tickers (comma-separated)", value="AAPL, MSFT, TSLA")
 
