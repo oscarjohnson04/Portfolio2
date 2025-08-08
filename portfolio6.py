@@ -91,7 +91,7 @@ tab1, tab2 = st.tabs(["Portfolio Analysis", "News"])
 # --- Ticker Input ---
 with tab1:
 
-    start = st.date_input("Start date", value=dt.date(2015, 1, 1), min_value=dt.date(2000, 1, 1), key="yc_d1")
+    start = st.date_input("Start Date", value=dt.date(2015, 1, 1), min_value=dt.date(2000, 1, 1), key="yc_d1")
     
     ticker_input = st.text_input("Enter Tickers (comma-separated)", value="AAPL, MSFT, TSLA")
 
@@ -194,7 +194,7 @@ with tab1:
                 # Display
                 st.subheader("Portfolio Dashboard")
                 with st.expander("ℹ️ Information about Beta"):
-                    st.write("The beta that is calculated here is based on the benchmark that has been chosen")
+                    st.write("The beta is based on the chosen benchmark")
                 st.dataframe(portfolio)
     
                 sector_map = {}
