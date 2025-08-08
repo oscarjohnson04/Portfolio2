@@ -214,7 +214,7 @@ with tab1:
                 ##st.plotly_chart(fig_sector, use_container_width=True)
     
                 # Compute monthly returns
-                monthly_prices = stocklist['Close'][tickers].resample('M').last()
+                monthly_prices = stocklist['Close'][tickers].resample('ME').last()
                 monthly_returns = monthly_prices.pct_change().dropna()
     
                 # Convert your existing sector_map (dict) into a pandas Series aligned to columns
