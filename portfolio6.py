@@ -65,12 +65,12 @@ def fetch_news(query: str, page_size: int, sort_by: str, use_dates: bool, from_d
         return [], f"Request failed: {e}"
 
 @st.cache_data(show_spinner=False)
-def fetch_multiple_latest_series(series_ids: dict, start: dt.date, end: dt.date) -> dict:
+def fetch_multiple_latest_series(series_ids: dict, start1: dt.date, end: dt.date) -> dict:
     """Fetch the last available value for each series id in series_ids."""
     out = {}
     for label, code in series_ids.items():
         try:
-            s = fred.get_series(code, start, end)
+            s = fred.get_series(code, start1, end)
             if len(s) == 0:
                 out[label] = np.nan
             else:
