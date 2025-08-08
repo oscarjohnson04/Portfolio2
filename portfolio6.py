@@ -18,7 +18,7 @@ st.set_page_config(layout="wide")
 
 st.title("📊 Portfolio Analysis Dashboard")
 
-st.sidebar.header("Benchmark Settings (Used in portfolio time series)")
+st.sidebar.header("Benchmark Selection")
 benchmark_options = {
     'S&P 500': '^GSPC',
     'NASDAQ': '^IXIC',
@@ -193,9 +193,9 @@ with tab1:
     
                 # Display
                 st.subheader("Portfolio Dashboard")
-                st.dataframe(portfolio)
                 with st.expander("ℹ️ Information about Beta"):
                     st.write("The beta that is calculated here is based on the benchmark that has been chosen")
+                st.dataframe(portfolio)
     
                 sector_map = {}
                 for t in tickers:
