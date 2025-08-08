@@ -3,7 +3,7 @@ This is my first complete project. If you want to run it, please click on this l
 What it does:
   + Gives you a dashboard of your portfolio
   + Shows your asset location by sector and the average returns of these sectors
-  + Shows a timeseries of your portfolio against the s&p500
+  + Shows a timeseries of your portfolio against a benchmark of your choosing
   + Provides basic dividend information and company financial data
   + Displays a correlation matrix of your asset mix
   + Shows a histogram of your daily log returns, your 95% VaR, and its CVaR
