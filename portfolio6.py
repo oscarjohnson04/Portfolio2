@@ -407,7 +407,7 @@ with tab1:
     
                 st.subheader("Correlation Matrix (Returns)")
                 with st.expander("ℹ️ What is a correlation matrix?"):
-                    st.write("A correlation matrix displays how correlated each of your assets are to each other")
+                    st.write("A correlation matrix displays how correlated each of your assets returns are to each other")
                 correlation = log_returns[tickers].corr()
                 fig_corr = go.Figure(data=go.Heatmap(z=correlation.values,
                                                      x=correlation.columns,
@@ -466,7 +466,7 @@ with tab1:
                 st.subheader("Sharpe Ratio")
                 with st.expander("ℹ️ What is Sharpe Ratio?"):
                     st.write("The Sharpe Ratio is the average return earned in excess of the risk-free rate per unit of volatility.")
-                    st.write("The risk-free rate of return used is the returns of the S&P 500")
+                    st.write("The risk-free rate of return used is the returns of the S&P 500 for the given time period")
                 volatility = log_tfsa_returns.rolling(60).std()*np.sqrt(60)
                 sp500_log_returns = np.log(Close['^GSPC'] / Close['^GSPC'].shift(1)).dropna()
                 total_return = np.exp(sp500_log_returns.sum()) - 1
