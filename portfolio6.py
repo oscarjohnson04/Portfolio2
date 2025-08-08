@@ -164,11 +164,11 @@ with tab1:
                 }, index=tickers)
     
                 # Download SP500 data
-                sp500 = yf.download(benchmark_ticker, start, end)
-                sp500_price = sp500['Close'].iloc[-1]
+                indexdata = yf.download(benchmark_ticker, start, end)
+                indexprice = indexdata['Close'].iloc[-1]
     
                 # Compute SP500 weighted deltas
-                portfolio[f'{benchmark_name} Weighted Delta (point)'] = (portfolio['Beta'].astype(float)* portfolio['Price'].astype(float)* portfolio['Units'].astype(float)) / float(sp500_price)
+                portfolio[f'{benchmark_name} Weighted Delta (point)'] = (portfolio['Beta'].astype(float)* portfolio['Price'].astype(float)* portfolio['Units'].astype(float)) / float(indexprice)
     
                 portfolio[f'{benchmark_name} Weighted Delta (point)'] = portfolio[f'{benchmark_name} Weighted Delta (point)'].round(2)
                 portfolio[f'{benchmark_name} Weighted Delta (1%)'] = portfolio['Beta'] * portfolio['Price'] * portfolio['Units'] * 0.01
