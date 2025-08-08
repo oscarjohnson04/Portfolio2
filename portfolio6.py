@@ -470,13 +470,13 @@ with tab1:
                 st.subheader("Sharpe Ratio")
                 with st.expander("ℹ️ What is Sharpe Ratio?"):
                     st.write("The Sharpe Ratio is the average return earned in excess of the risk-free rate per unit of volatility.")
-                    st.write("The risk-free rate of return used is the returns of the S&P 500 for the given time period")
+                    st.write("The risk-free rate of return used is the returns of the chosen benchmark for the given time period")
                 volatility = log_tfsa_returns.rolling(60).std()*np.sqrt(60)
-                sp500_log_returns = np.log(Close['^GSPC'] / Close['^GSPC'].shift(1)).dropna()
-                total_return = np.exp(sp500_log_returns.sum()) - 1
+                benchmark_log_returns = np.log(Close[benchmark_ticker] / Close[benchmark_ticker].shift(1)).dropna()
+                total_return = np.exp(benchmark_log_returns.sum()) - 1
                 num_years = (Close.index[-1] - Close.index[0]).days / 365
-                annual_sp500_return = (1 + total_return)**(1/num_years) - 1
-                Rf = annual_sp500_return / 252
+                annual_benchmark_return = (1 + total_return)**(1/num_years) - 1
+                Rf = annual_benchmark_return / 252
                 sharpe_ratio = (log_tfsa_returns.rolling(60).mean() - Rf) * 60 / volatility
     
                 fig3 = go.Figure()
