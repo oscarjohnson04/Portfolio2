@@ -135,8 +135,8 @@ with tab1:
                         st.sidebar.metric(label, f"{prefix}{value:,.2f}{suffix}")
                 
                 units_arr = np.array([units[t] for t in tickers])
-                df = yf.download(['^GSPC'] + tickers, start, end, multi_level_index = False)
-                Close = df['Close'][['^GSPC'] + tickers]
+                df = yf.download([benchmark_ticker] + tickers, start, end, multi_level_index = False)
+                Close = df['Close'][[benchmark_ticker] + tickers]
                 log_returns = np.log(Close / Close.shift(1)).dropna()
     
                 def calc_beta(df):
@@ -164,20 +164,20 @@ with tab1:
                 }, index=tickers)
     
                 # Download SP500 data
-                sp500 = yf.download('^GSPC', start, end)
+                sp500 = yf.download(benchmark_ticker, start, end)
                 sp500_price = sp500['Close'].iloc[-1]
     
                 # Compute SP500 weighted deltas
-                portfolio['SP500 Weighted Delta (point)'] = (portfolio['Beta'].astype(float)* portfolio['Price'].astype(float)* portfolio['Units'].astype(float)) / float(sp500_price)
+                portfolio[f'{benchmark_name} Weighted Delta (point)'] = (portfolio['Beta'].astype(float)* portfolio['Price'].astype(float)* portfolio['Units'].astype(float)) / float(sp500_price)
     
-                portfolio['SP500 Weighted Delta (point)'] = portfolio['SP500 Weighted Delta (point)'].round(2)
-                portfolio['SP500 Weighted Delta (1%)'] = portfolio['Beta'] * portfolio['Price'] * portfolio['Units'] * 0.01
+                portfolio[f'{benchmark_name} Weighted Delta (point)'] = portfolio[f'{benchmark_name} Weighted Delta (point)'].round(2)
+                portfolio[f'{benchmark_name} Weighted Delta (1%)'] = portfolio['Beta'] * portfolio['Price'] * portfolio['Units'] * 0.01
     
                 # Round all numeric columns to 2 decimals
                 portfolio = portfolio.applymap(lambda x: round(x, 2) if isinstance(x, (float, int)) else x)
     
                 # Compute totals
-                totals = portfolio[['Current Value', 'SP500 Weighted Delta (point)', 'SP500 Weighted Delta (1%)']].sum()
+                totals = portfolio[['Current Value', f'{benchmark_name} Weighted Delta (point)', f'{benchmark_name} Weighted Delta (1%)']].sum()
                 portfolio.loc['Total'] = {
                     'Price': '',
                     'Units': '',
@@ -185,8 +185,8 @@ with tab1:
                     'Weights': '',
                     'Beta': '',
                     'Weighted Beta': '',
-                    'SP500 Weighted Delta (point)': round(totals['SP500 Weighted Delta (point)'], 2),
-                    'SP500 Weighted Delta (1%)': round(totals['SP500 Weighted Delta (1%)'], 2),
+                    f'{benchmark_name} Weighted Delta (point)': round(totals[f'{benchmark_name} Weighted Delta (point)'], 2),
+                    f'{benchmark_name} Weighted Delta (1%)': round(totals[f'{benchmark_name} Weighted Delta (1%)'], 2),
                 }
     
                 # Display
