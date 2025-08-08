@@ -148,7 +148,7 @@ with tab1:
                     ], index=[t for t in returns_df.columns if t != benchmark_col], name="Beta")
         
 
-                beta = calc_beta(log_returns)
+                beta = calc_beta(log_returns, benchmark_ticker)
                 prices = Close.iloc[-1][tickers].values
                 value = units_arr * prices
                 weights = value / value.sum()
