@@ -149,6 +149,7 @@ with tab1:
         
 
                 beta = calc_beta(log_returns, benchmark_ticker)
+                stocklist = yf.download(tickers, start, end, auto_adjust=True)
                 prices = Close.iloc[-1][tickers].values
                 value = units_arr * prices
                 weights = value / value.sum()
@@ -193,6 +194,8 @@ with tab1:
                 # Display
                 st.subheader("Portfolio Dashboard")
                 st.dataframe(portfolio)
+                 with st.expander("ℹ️ Information about Beta"):
+                    st.write("The beta that is calculated here is based on the benchmark that has been chosen")
     
                 sector_map = {}
                 for t in tickers:
