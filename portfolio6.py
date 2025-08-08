@@ -139,16 +139,17 @@ with tab1:
                 Close = df['Close'][[benchmark_ticker] + tickers]
                 log_returns = np.log(Close / Close.shift(1)).dropna()
     
-                def calc_beta(df):
-                    m = df.iloc[:, 0].values
+        # --- Beta calculation (explicit benchmark reference) ---
+                def calc_beta(returns_df, benchmark_col):
+                    m = returns_df[benchmark_col].values
                     return pd.Series([
-                        np.cov(df.iloc[:, i].values, m)[0, 1] / np.var(m) if np.var(m) > 0 else np.nan
-                        for i in range(1, df.shape[1])
-                    ], index=df.columns[1:], name="Beta")
-    
+                        np.cov(returns_df[t].values, m)[0, 1] / np.var(m) if np.var(m) > 0 else np.nan
+                        for t in returns_df.columns if t != benchmark_col
+                    ], index=[t for t in returns_df.columns if t != benchmark_col], name="Beta")
+        
+
                 beta = calc_beta(log_returns)
-                stocklist = yf.download(tickers, start, end, auto_adjust=True)
-                prices = stocklist['Close'].iloc[-1][tickers].values
+                prices = Close.iloc[-1][tickers].values
                 value = units_arr * prices
                 weights = value / value.sum()
                 beta = round(beta, 2)
