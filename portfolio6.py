@@ -145,9 +145,13 @@ with tab1:
                     betas = {}
                     for t in returns_df.columns:
                         if t != benchmark_col:
-                            cov = m.ewm(span=span).cov(returns_df[t])  
-                            var = m.ewm(span=span).var()              
-                            betas[t] = cov.iloc[-1] / var.iloc[-1]     
+                            # Combine into one DataFrame
+                            df_temp = returns_df[[benchmark_col, t]]
+                            # Calculate EWM covariance and variance
+                            cov = df_temp[benchmark_col].ewm(span=span).cov(df_temp[t])
+                            var = df_temp[benchmark_col].ewm(span=span).var()
+                            # Take the latest values (last row)
+                            betas[t] = cov.iloc[-1] / var.iloc[-1] if var.iloc[-1] > 0 else np.nan
                     return pd.Series(betas, name="Beta")
         
 
