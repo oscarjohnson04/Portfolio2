@@ -201,7 +201,7 @@ with tab1:
                 # Display
                 st.subheader("Portfolio Dashboard")
                 with st.expander("ℹ️ Information about Beta"):
-                    st.write("The beta is based on the chosen benchmark")
+                    st.write("The beta is based on the chosen benchmark. When calculating beta, more weight is put on recent data.")
                 st.dataframe(portfolio)
     
                 sector_map = {}
@@ -531,7 +531,9 @@ with tab1:
                 with col4:
                     st.subheader("Suggested Rebalancing")
                     st.dataframe(rebalance_df)
-    
+                    
+                with st.expander("ℹ️ Information about Portfolio Optimization"):
+                    st.write("While the model use all of the data of the given period, it puts more weight on recent data")
                 # --- Monte Carlo Simulation ---
                 st.subheader("Monte Carlo Simulation")
                 daily_std = log_tfsa_returns.std()
