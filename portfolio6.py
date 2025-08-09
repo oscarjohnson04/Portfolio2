@@ -140,7 +140,7 @@ with tab1:
                 log_returns = np.log(Close / Close.shift(1)).dropna()
     
         # --- Beta calculation (explicit benchmark reference) ---
-                def calc_beta(returns_df, benchmark_col, span=60):
+                def calc_beta(returns_df, benchmark_col, span=90):
                     m = returns_df[benchmark_col].values
                     betas = {}
                     for t in returns_df.columns:
@@ -155,7 +155,7 @@ with tab1:
                     return pd.Series(betas, name="Beta")
         
 
-                beta = calc_beta(log_returns, benchmark_ticker, span=60)
+                beta = calc_beta(log_returns, benchmark_ticker, span=90)
                 stocklist = yf.download(tickers, start, end, auto_adjust=True)
                 prices = Close.iloc[-1][tickers].values
                 value = units_arr * prices
@@ -495,10 +495,10 @@ with tab1:
                 #st.subheader("Portfolio Optimization")
                 mu = expected_returns.ema_historical_return(
                     stocklist['Close'][tickers],
-                    span=60)
+                    span=90)
                 S = risk_models.exp_cov(
                     stocklist['Close'][tickers],
-                    span=60)
+                    span=90)
                 ef = EfficientFrontier(mu, S)
                 optimal_weights = ef.max_sharpe()
                 cleaned_weights = ef.clean_weights()
