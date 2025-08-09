@@ -140,15 +140,18 @@ with tab1:
                 log_returns = np.log(Close / Close.shift(1)).dropna()
     
         # --- Beta calculation (explicit benchmark reference) ---
-                def calc_beta(returns_df, benchmark_col):
+                def calc_beta(returns_df, benchmark_col, span=60):
                     m = returns_df[benchmark_col].values
-                    return pd.Series([
-                        np.cov(returns_df[t].values, m)[0, 1] / np.var(m) if np.var(m) > 0 else np.nan
-                        for t in returns_df.columns if t != benchmark_col
-                    ], index=[t for t in returns_df.columns if t != benchmark_col], name="Beta")
+                    betas = {}
+                    for t in returns_df.columns:
+                        if t != benchmark_col:
+                            cov = m.ewm(span=span).cov(returns_df[t])  
+                            var = m.ewm(span=span).var()              
+                            betas[t] = cov.iloc[-1] / var.iloc[-1]     
+                    return pd.Series(betas, name="Beta")
         
 
-                beta = calc_beta(log_returns, benchmark_ticker)
+                beta = calc_beta(log_returns, benchmark_ticker, span=60)
                 stocklist = yf.download(tickers, start, end, auto_adjust=True)
                 prices = Close.iloc[-1][tickers].values
                 value = units_arr * prices
