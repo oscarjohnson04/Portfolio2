@@ -493,8 +493,12 @@ with tab1:
     
                 # --- Portfolio Optimization ---
                 #st.subheader("Portfolio Optimization")
-                mu = expected_returns.mean_historical_return(stocklist['Close'][tickers])
-                S = risk_models.sample_cov(stocklist['Close'][tickers])
+                mu = expected_returns.ema_historical_return(
+                    stocklist['Close'][tickers],
+                    span=60)
+                S = risk_models.exp_cov(
+                    stocklist['Close'][tickers],
+                    span=60)
                 ef = EfficientFrontier(mu, S)
                 optimal_weights = ef.max_sharpe()
                 cleaned_weights = ef.clean_weights()
