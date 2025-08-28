@@ -376,7 +376,7 @@ with tab1:
                 
                 for t in tickers:
                     try:
-                        info = yf.Ticker(t).info
+                        info = yf.Ticker(t).get_info
                         financial_data[t] = {
                             "Market Cap ($)": info.get("marketCap", np.nan),
                             "Trailing EPS": info.get("trailingEps", np.nan),
