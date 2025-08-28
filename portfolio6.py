@@ -207,7 +207,7 @@ with tab1:
                 sector_map = {}
                 for t in tickers:
                     try:
-                        info = yf.Ticker(t).info
+                        info = yf.Ticker(t).get_info
                         sector = info.get('sector', 'Unknown')
                         sector_map[t] = sector
                     except:
