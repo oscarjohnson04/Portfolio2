@@ -207,7 +207,9 @@ with tab1:
                 sector_map = {}
                 for t in tickers:
                     try:
-                        info = yf.Ticker(t).get_info
+                        ticker_obj = yf.Ticker(t)
+                        # Newer way: get_info() (instead of .info)
+                        info = ticker_obj.get_info()
                         sector = info.get('sector', 'Unknown')
                         sector_map[t] = sector
                     except:
@@ -304,17 +306,20 @@ with tab1:
                 dividends = {}
                 for t in tickers:
                     try:
-                        info = yf.Ticker(t).info
-                        div_yield = info.get('dividendYield', 0)
-                        div_amount = info.get('dividendRate', 0)
-    
-            # Normalize yield if needed
-                        if div_yield:
-                            div_yield = div_yield / 100 if div_yield > 0 else div_yield
+                        ticker_obj = yf.Ticker(t)
+                        
+                        # Dividend history (Series indexed by date)
+                        dividends = ticker_obj.dividends
+                        
+                        if not dividends.empty:
+                            last_div = dividends.iloc[-1]   # most recent dividend per share
+                            div_amount = last_div
+                            total_dividend = div_amount * units.get(t, 0)
+                            # Approximate dividend yield = last dividend * 4 / current price (quarterly assumption)
+                            price = ticker_obj.history(period="1d")["Close"].iloc[-1]
+                            div_yield = (div_amount * 4) / price if price > 0 else 0
                         else:
-                            div_yield = 0
-                            
-                        total_dividend = div_amount * units.get(t, 0) if div_amount else 0
+                            div_amount, total_dividend, div_yield = 0, 0, 0
             # Store both
                         dividends[t] = {
                             'Dividend Yield': div_yield,
