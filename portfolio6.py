@@ -370,61 +370,61 @@ with tab1:
                     st.plotly_chart(fig_div, use_container_width=True)
 
     
-                    st.subheader("Company Financials")
-                    
-                    financial_data = {}
-                    
-                    for t in tickers:
-                        try:
-                            ticker_obj = yf.Ticker(t)
-                            info = ticker_obj.get_info()  # ✅ use get_info() instead of .info
-                    
-                            financial_data[t] = {
-                                "Market Cap ($)": info.get("marketCap", np.nan),
-                                "Trailing EPS": info.get("trailingEps", np.nan),
-                                "Forward EPS": info.get("forwardEps", np.nan),
-                                "PE Ratio": info.get("trailingPE", np.nan),
-                                "Return On Equity": info.get("returnOnEquity", np.nan),
-                                "YOY Earnings Growth (%)": info.get("earningsGrowth", np.nan),
-                                "YOY Revenue Growth (%)": info.get("revenueGrowth", np.nan),
-                                "Total Revenue ($)": info.get("totalRevenue", np.nan),
-                                "Gross Profits ($)": info.get("grossProfits", np.nan),
-                                "Total Debt ($)": info.get("totalDebt", np.nan)
-                            }
-                    
-                        except Exception as e:
-                            financial_data[t] = {
-                                "Market Cap ($)": np.nan,
-                                "Trailing EPS": np.nan,
-                                "Forward EPS": np.nan,
-                                "PE Ratio": np.nan,
-                                "Return On Equity": np.nan,
-                                "YOY Earnings Growth (%)": np.nan,
-                                "YOY Revenue Growth (%)": np.nan,
-                                "Total Revenue ($)": np.nan,
-                                "Gross Profits ($)": np.nan,
-                                "Total Debt ($)": np.nan
-                            }
-                    
-                    # Convert to DataFrame and format
-                    fin_df = pd.DataFrame.from_dict(financial_data, orient="index")
-                    fin_df["YOY Earnings Growth (%)"] = fin_df["YOY Earnings Growth (%)"] * 100
-                    fin_df["YOY Revenue Growth (%)"] = fin_df["YOY Revenue Growth (%)"] * 100
-                    
-                    st.dataframe(
-                        fin_df.style.format({
-                            "Market Cap ($)": "${:,.0f}",
-                            "Trailing EPS": "{:.2f}",
-                            "Forward EPS": "{:.2f}",
-                            "PE Ratio": "{:.2f}",
-                            "Return On Equity": "{:.2f}",
-                            "YOY Earnings Growth (%)": "{:.2f}%",
-                            "YOY Revenue Growth (%)": "{:.2f}%",
-                            "Total Revenue ($)": "${:,.0f}",
-                            "Gross Profits ($)": "${:,.0f}",
-                            "Total Debt ($)": "${:,.0f}"
-                        })
-                    )
+                st.subheader("Company Financials")
+                
+                financial_data = {}
+                
+                for t in tickers:
+                    try:
+                        ticker_obj = yf.Ticker(t)
+                        info = ticker_obj.get_info()  # ✅ use get_info() instead of .info
+                
+                        financial_data[t] = {
+                            "Market Cap ($)": info.get("marketCap", np.nan),
+                            "Trailing EPS": info.get("trailingEps", np.nan),
+                            "Forward EPS": info.get("forwardEps", np.nan),
+                            "PE Ratio": info.get("trailingPE", np.nan),
+                            "Return On Equity": info.get("returnOnEquity", np.nan),
+                            "YOY Earnings Growth (%)": info.get("earningsGrowth", np.nan),
+                            "YOY Revenue Growth (%)": info.get("revenueGrowth", np.nan),
+                            "Total Revenue ($)": info.get("totalRevenue", np.nan),
+                            "Gross Profits ($)": info.get("grossProfits", np.nan),
+                            "Total Debt ($)": info.get("totalDebt", np.nan)
+                        }
+                
+                    except Exception as e:
+                        financial_data[t] = {
+                            "Market Cap ($)": np.nan,
+                            "Trailing EPS": np.nan,
+                            "Forward EPS": np.nan,
+                            "PE Ratio": np.nan,
+                            "Return On Equity": np.nan,
+                            "YOY Earnings Growth (%)": np.nan,
+                            "YOY Revenue Growth (%)": np.nan,
+                            "Total Revenue ($)": np.nan,
+                            "Gross Profits ($)": np.nan,
+                            "Total Debt ($)": np.nan
+                        }
+                
+                # Convert to DataFrame and format
+                fin_df = pd.DataFrame.from_dict(financial_data, orient="index")
+                fin_df["YOY Earnings Growth (%)"] = fin_df["YOY Earnings Growth (%)"] * 100
+                fin_df["YOY Revenue Growth (%)"] = fin_df["YOY Revenue Growth (%)"] * 100
+                
+                st.dataframe(
+                    fin_df.style.format({
+                        "Market Cap ($)": "${:,.0f}",
+                        "Trailing EPS": "{:.2f}",
+                        "Forward EPS": "{:.2f}",
+                        "PE Ratio": "{:.2f}",
+                        "Return On Equity": "{:.2f}",
+                        "YOY Earnings Growth (%)": "{:.2f}%",
+                        "YOY Revenue Growth (%)": "{:.2f}%",
+                        "Total Revenue ($)": "${:,.0f}",
+                        "Gross Profits ($)": "${:,.0f}",
+                        "Total Debt ($)": "${:,.0f}"
+                    })
+                )
 
     
                 st.subheader("Correlation Matrix (Returns)")
