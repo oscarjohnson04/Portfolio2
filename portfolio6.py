@@ -303,40 +303,42 @@ with tab1:
                 st.write(f"• Mean Monthly Log Return: {monthly_mean_change * 100:.2f}%")
                 st.write(f"• Mean Yearly Log Return: {yearly_mean_change * 100:.2f}%")
     
-                dividends = {}
+                dividends = {}  # keep this as the dictionary for results
                 for t in tickers:
                     try:
                         ticker_obj = yf.Ticker(t)
-                        
+                
                         # Dividend history (Series indexed by date)
-                        dividends = ticker_obj.dividends
-                        
-                        if not dividends.empty:
-                            last_div = dividends.iloc[-1]   # most recent dividend per share
+                        div_history = ticker_obj.dividends   # ✅ use different variable name
+                
+                        if not div_history.empty:
+                            last_div = div_history.iloc[-1]   # most recent dividend per share
                             div_amount = last_div
                             total_dividend = div_amount * units.get(t, 0)
+                            
                             # Approximate dividend yield = last dividend * 4 / current price (quarterly assumption)
                             price = ticker_obj.history(period="1d")["Close"].iloc[-1]
                             div_yield = (div_amount * 4) / price if price > 0 else 0
                         else:
                             div_amount, total_dividend, div_yield = 0, 0, 0
-            # Store both
+                
+                        # Store results
                         dividends[t] = {
                             'Dividend Yield': div_yield,
-                            'Dividend Amount ($)': div_amount if div_amount else 0,
+                            'Dividend Amount ($)': div_amount,
                             'Total Dividend ($)': total_dividend
                         }
-    
+                
                     except:
                         dividends[t] = {
                             'Dividend Yield': 0,
                             'Dividend Amount ($)': 0,
                             'Total Dividend ($)': 0
                         }
-    
-    # Convert to DataFrame
+                
+                # Convert to DataFrame
                 div_df = pd.DataFrame.from_dict(dividends, orient='index')
-    
+                
                 fig_div = go.Figure(go.Bar(
                     x=div_df.index,
                     y=div_df['Total Dividend ($)'],
@@ -344,7 +346,7 @@ with tab1:
                     textposition='outside',
                     marker_color='mediumseagreen'
                 ))
-    
+                
                 fig_div.update_layout(
                     xaxis_title="Ticker",
                     yaxis_title="Total Dividend ($)",
@@ -352,9 +354,9 @@ with tab1:
                     uniformtext_mode='hide',
                     template='plotly_white'
                 )
-    
+                
                 col5, col6 = st.columns(2)
-    
+                
                 with col5:
                     st.subheader("Dividend Summary")
                     st.dataframe(div_df.style.format({
@@ -362,10 +364,11 @@ with tab1:
                         "Dividend Amount ($)": "${:.2f}",
                         "Total Dividend ($)": "${:.2f}"
                     }))
-                    
+                
                 with col6:
                     st.subheader("Total Dividend Income per Ticker")
                     st.plotly_chart(fig_div, use_container_width=True)
+
     
                 st.subheader("Company Financials")
     
