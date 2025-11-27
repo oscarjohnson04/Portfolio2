@@ -2,12 +2,13 @@ streamlit
 pandas
 yfinance
 scikit-learn
-numpy
 PyPortfolioOpt
 plotly
-tensorflow-cpu==2.12.0
 fredapi
 requests
-
+numpy>=1.25.0,<2.0.0
+cvxpy>=1.4.2
+scipy>=1.10.0
+tensorflow
 
 
