@@ -220,7 +220,7 @@ with tab1:
     
                 ##st.subheader("Sector Allocation")
                 fig_sector = go.Figure(data=[go.Pie(labels=sector_grouped.index, values=sector_grouped)])
-                ##st.plotly_chart(fig_sector, use_container_width=True)
+                ##st.plotly_chart(fig_sector)
     
                 # Compute monthly returns
                 monthly_prices = stocklist['Close'][tickers].resample('ME').last()
@@ -237,7 +237,7 @@ with tab1:
                 fig_bar = go.Figure(data=[
                     go.Bar(x=sector_returns.columns, y=sector_returns.mean() * 100)])
                 fig_bar.update_layout(xaxis_title="Sector", yaxis_title="Return (%)")
-                ##st.plotly_chart(fig_bar, use_container_width=True)
+                ##st.plotly_chart(fig_bar)
     
                 col1, col2 = st.columns(2)
     
@@ -245,11 +245,11 @@ with tab1:
                     st.subheader("Sector Allocation")
                     fig_sector = go.Figure(
                         data=[go.Pie(labels=sector_grouped.index, values=sector_grouped)])
-                    st.plotly_chart(fig_sector, use_container_width=True)
+                    st.plotly_chart(fig_sector)
     
                 with col2:
                     st.subheader("Average Monthly Return by Sector (%)")
-                    st.plotly_chart(fig_bar, use_container_width=True)
+                    st.plotly_chart(fig_bar)
                     
                 
                 # --- Timeline Plot ---
@@ -282,7 +282,7 @@ with tab1:
                     yaxis_title="Index (Start = 100)",
                     template="plotly_white",
                 )
-                st.plotly_chart(fig1, use_container_width=True)
+                st.plotly_chart(fig1)
 
                 # st.subheader(f"Portfolio vs {benchmark_name}")
                 # close_prices = stocklist['Close'][tickers]
@@ -293,7 +293,7 @@ with tab1:
                 # fig1.add_trace(go.Scatter(x=portfolio_ts.index, y=portfolio_ts, name="Portfolio"), secondary_y=False)
                 # fig1.add_trace(go.Scatter(x=benchmark_data.index, y=benchmark_data['Close'], name=benchmark_name), secondary_y=True)
                 # fig1.update_layout(title=f"Portfolio Value vs {benchmark_name}", template='plotly_white')
-                # st.plotly_chart(fig1, use_container_width=True)
+                # st.plotly_chart(fig1)
     
                 daily_change = np.log(portfolio_ts/portfolio_ts.shift(1)).dropna()
                 daily_mean_change = daily_change.mean()
@@ -367,7 +367,7 @@ with tab1:
                 
                 with col6:
                     st.subheader("Total Dividend Income per Ticker")
-                    st.plotly_chart(fig_div, use_container_width=True)
+                    st.plotly_chart(fig_div)
 
     
                 st.subheader("Company Financials")
@@ -435,7 +435,7 @@ with tab1:
                                                      x=correlation.columns,
                                                      y=correlation.columns,
                                                      colorscale='RdBu', zmin=-1, zmax=1))
-                st.plotly_chart(fig_corr, use_container_width=True)
+                st.plotly_chart(fig_corr)
                 
                 # --- VaR & CVaR ---
                 st.subheader("VaR, CVaR & Daily Returns")
@@ -465,7 +465,7 @@ with tab1:
                     line=dict(color="darkred", dash="dot"),
                     name="95% CVaR"
                 ))
-                st.plotly_chart(fig2, use_container_width=True)
+                st.plotly_chart(fig2)
     
                 st.write(f"95% VaR: {VaR_pct:.2f}%")
                 st.write(f"95% CVaR: {CVaR_pct:.2f}%")
@@ -481,7 +481,7 @@ with tab1:
                 fig5 = go.Figure()
                 fig5.add_trace(go.Scatter(x=drawdowns.index, y=drawdowns, name="Drawdowns"))
                 fig5.update_layout(template='plotly_white')
-                st.plotly_chart(fig5, use_container_width=True)
+                st.plotly_chart(fig5)
                 st.write(f"Max Drawdown: {drawdowns.min()*100:.2f}%")
     
                 # --- Sharpe Ratio ---
@@ -500,7 +500,7 @@ with tab1:
                 fig3 = go.Figure()
                 fig3.add_trace(go.Scatter(x=sharpe_ratio.index, y=sharpe_ratio, name="Sharpe Ratio"))
                 fig3.update_layout(template="plotly_white")
-                st.plotly_chart(fig3, use_container_width=True)
+                st.plotly_chart(fig3)
     
                 # --- Portfolio Optimization ---
                 #st.subheader("Portfolio Optimization")
@@ -523,7 +523,7 @@ with tab1:
                 fig5.add_trace(go.Bar(x=comparison_df.index, y=comparison_df['Current Weight'], name="Current"))
                 fig5.add_trace(go.Bar(x=comparison_df.index, y=comparison_df['Optimal Weight'], name="Optimal"))
                 fig5.update_layout(barmode="group", title="Weight Comparison", template="plotly_white")
-                #st.plotly_chart(fig5, use_container_width=True)
+                #st.plotly_chart(fig5)
     
                 current_value = value.sum()
                 opt_val = current_value * pd.Series(cleaned_weights)
@@ -537,7 +537,7 @@ with tab1:
     
                 with col3:
                     st.subheader("Portfolio Optimization")
-                    st.plotly_chart(fig5, use_container_width=True)
+                    st.plotly_chart(fig5)
     
                 with col4:
                     st.subheader("Suggested Rebalancing")
@@ -564,7 +564,7 @@ with tab1:
                     fig4.add_trace(go.Scatter(x=np.arange(t_intervals), y=price_list[:, i], line=dict(width=1), showlegend=False))
                 fig4.add_trace(go.Scatter(x=np.arange(t_intervals), y=price_list.mean(axis=1), name="Average Path", line=dict(color='black', dash='dash')))
                 fig4.update_layout(template="plotly_white")
-                st.plotly_chart(fig4, use_container_width=True)
+                st.plotly_chart(fig4)
     
                 # --- LSTM Forecast ---
                 st.subheader("LSTM Forecast")
@@ -655,7 +655,7 @@ with tab2:
                     if thumb:
                         colA, colB = st.columns([1, 3])
                         with colA:
-                            st.image(thumb, use_container_width=True)
+                            st.image(thumb)
                         with colB:
                             st.markdown(f"### [{title}]({url})")
                             st.caption(f"{source} · {published}")
