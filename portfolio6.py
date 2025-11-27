@@ -135,7 +135,7 @@ with tab1:
                         st.sidebar.metric(label, f"{prefix}{value:,.2f}{suffix}")
                 
                 units_arr = np.array([units[t] for t in tickers])
-                df = yf.download([benchmark_ticker] + tickers, start, end, multi_level_index = False)
+                df = yf.download([benchmark_ticker] + tickers, start, end)
                 Close = df['Close'][[benchmark_ticker] + tickers]
                 log_returns = np.log(Close / Close.shift(1)).dropna()
     
