@@ -12,13 +12,12 @@ from sklearn.preprocessing import MinMaxScaler
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 from fredapi import Fred
-import requests
 
 st.set_page_config(layout="wide")
 
 st.title("📊 Portfolio Analysis Dashboard")
 
-st.sidebar.header("Benchmark Selection")
+st.sidebar.header("Benchmark Settings (Used in portfolio time series)")
 benchmark_options = {
     'S&P 500': '^GSPC',
     'NASDAQ': '^IXIC',
@@ -36,62 +35,10 @@ benchmark_options = {
 benchmark_name = st.sidebar.selectbox("Choose Benchmark:", list(benchmark_options.keys()))
 benchmark_ticker = benchmark_options[benchmark_name]
 
-@st.cache_data(show_spinner=True, ttl=60 * 15)
-def fetch_news(query: str, page_size: int, sort_by: str, use_dates: bool, from_date, to_date):
-    """
-    Fetch news from NewsAPI's /everything endpoint. Optionally filter by date.
-    """
-    url = "https://newsapi.org/v2/everything"
-    params = {
-        "q": query,
-        "language": "en",
-        "pageSize": int(page_size),
-        "sortBy": sort_by,
-        "apiKey": NEWS_API_KEY
-    }
-    if use_dates and from_date:
-        params["from"] = str(from_date)
-    if use_dates and to_date:
-        params["to"] = str(to_date)
-
-    try:
-        r = requests.get(url, params=params, timeout=15)
-        r.raise_for_status()
-        payload = r.json()
-        if payload.get("status") != "ok":
-            return [], f"NewsAPI error: {payload.get('message', 'Unknown error')}"
-        return payload.get("articles", []), None
-    except Exception as e:
-        return [], f"Request failed: {e}"
-
-@st.cache_data(show_spinner=False)
-def fetch_multiple_latest_series(series_ids: dict, start1: dt.date, end: dt.date) -> dict:
-    """Fetch the last available value for each series id in series_ids."""
-    out = {}
-    for label, code in series_ids.items():
-        try:
-            s = fred.get_series(code, start1, end)
-            if len(s) == 0:
-                out[label] = np.nan
-            else:
-                out[label] = float(s.iloc[-1])
-        except Exception:
-            out[label] = np.nan
-    return out
-
-
-fred = Fred(api_key='00edddc751dd47fb05bd7483df1ed0a3')
-
-start1 = dt.datetime(2015, 1, 1)
-end = dt.datetime.now()
-
-
 
 tab1, tab2 = st.tabs(["Portfolio Analysis", "News"])
 # --- Ticker Input ---
 with tab1:
-
-    start = st.date_input("Start Date", value=dt.date(2015, 1, 1), min_value=dt.date(2000, 1, 1), key="yc_d1")
     
     ticker_input = st.text_input("Enter Tickers (comma-separated)", value="AAPL, MSFT, TSLA")
 
@@ -108,56 +55,57 @@ with tab1:
             with st.spinner("Fetching data and computing portfolio..."):
 
             # --- Data Download ---
-                sidebar_series_ids = {
-                    "Real GDP (Billions, chained 2017$)": "GDPC1",
-                    "Unemployment Rate": "UNRATE",
-                    "Core Median CPI": "MEDCPIM158SFRBCLE",
-                    "Debt/GDP Ratio": "GFDEGDQ188S",
-                    "Fed Target Upper Bound": "DFEDTARU",
-                    "Effective Fed Funds Rate": "DFF",
-                    "3M T-Bill Yield": "DGS3MO",
-                    "10Y Treasury Yield": "DGS10",
-                    "30Y Treasury Yield": "DGS30",
-                    "Moody's AAA Corp Yield": "DAAA",
-                    "VIX": "VIXCLS",
-                    "US Econ Policy Uncertainty": "USEPUINDXD",
-                    "Global Econ Policy Uncertainty": "GEPUCURRENT"
-                }
+
+            # macrodata
+                fred = Fred(api_key='00edddc751dd47fb05bd7483df1ed0a3')
+
+                start = dt.datetime(2015, 1, 1)
+                end = dt.datetime.now()
+
+                realgdp = fred.get_series('GDPC1', start, end).iloc[-1]
+                unrate = fred.get_series('DGS3MO', start, end).iloc[-1]
+                cpi = fred.get_series('MEDCPIM158SFRBCLE', start, end).iloc[-1]
+                debtgdp = fred.get_series('GFDEGDQ188S', start, end).iloc[-1]
+                fedrate = fred.get_series('DFEDTARU', start, end).iloc[-1]
+                fedfundrate = fred.get_series('DFF', start, end).iloc[-1]
+                trate = fred.get_series('DGS3MO', start, end).iloc[-1]
+                tenrate = fred.get_series('DGS10', start, end).iloc[-1]
+                longrate = fred.get_series('DGS30', start, end).iloc[-1]
+                corprate = fred.get_series('DAAA', start, end).iloc[-1]
+                vix = fred.get_series('VIXCLS', start, end).iloc[-1]
+                usu = fred.get_series('USEPUINDXD', start, end).iloc[-1]
+                gu = fred.get_series('GEPUCURRENT', start, end).iloc[-1]
 
                 st.sidebar.title("Latest US Macro Data")
-                latest_data = fetch_multiple_latest_series(sidebar_series_ids, start1, end)
-                for label, value in latest_data.items():
-                    suffix = "%" if any(k in label.lower() for k in ["rate", "yield", "cpi", "target"]) else ""
-                    prefix = "$" if "real gdp" in label.lower() else ""
-                    if np.isnan(value):
-                        st.sidebar.metric(label, "N/A")
-                    else:
-                        st.sidebar.metric(label, f"{prefix}{value:,.2f}{suffix}")
-                
+                st.sidebar.metric("Real GDP (In Billions)", f"${realgdp:.2f}")
+                st.sidebar.metric("Unemployment Rate", f"{unrate:.2f}%")
+                st.sidebar.metric("CPI", f"{cpi:.2f}%")
+                st.sidebar.metric("Debt/GDP Ratio", f"{debtgdp:.2f}")
+                st.sidebar.metric("Federal Reserve Interest Rate", f"{fedrate:.2f}%")
+                st.sidebar.metric("Federal Funds Rate", f"{fedfundrate:.2f}%")
+                st.sidebar.metric("3 month T-Bill yield", f"{trate:.2f}%")
+                st.sidebar.metric("10 year bond yield", f"{tenrate:.2f}%")
+                st.sidebar.metric("30 year bond yield", f"{longrate:.2f}%")
+                st.sidebar.metric("Moody's AAA Corporate Bond Yield", f"{corprate:.2f}%")
+                st.sidebar.metric("VIX", f"{vix:.2f}")
+                st.sidebar.metric("US Economic Policy Uncertainty", f"{usu:.2f}")
+                st.sidebar.metric("Global Economic Policy Uncertainty", f"{gu:.2f}")
+    
                 units_arr = np.array([units[t] for t in tickers])
-                df = yf.download([benchmark_ticker] + tickers, start, end)
-                Close = df['Close'][[benchmark_ticker] + tickers]
+                df = yf.download(['^GSPC'] + tickers, start, end, multi_level_index = False)
+                Close = df['Close'][['^GSPC'] + tickers]
                 log_returns = np.log(Close / Close.shift(1)).dropna()
     
-        # --- Beta calculation (explicit benchmark reference) ---
-                def calc_beta(returns_df, benchmark_col, span=90):
-                    m = returns_df[benchmark_col].values
-                    betas = {}
-                    for t in returns_df.columns:
-                        if t != benchmark_col:
-                            # Combine into one DataFrame
-                            df_temp = returns_df[[benchmark_col, t]]
-                            # Calculate EWM covariance and variance
-                            cov = df_temp[benchmark_col].ewm(span=span).cov(df_temp[t])
-                            var = df_temp[benchmark_col].ewm(span=span).var()
-                            # Take the latest values (last row)
-                            betas[t] = cov.iloc[-1] / var.iloc[-1] if var.iloc[-1] > 0 else np.nan
-                    return pd.Series(betas, name="Beta")
-        
-
-                beta = calc_beta(log_returns, benchmark_ticker, span=90)
+                def calc_beta(df):
+                    m = df.iloc[:, 0].values
+                    return pd.Series([
+                        np.cov(df.iloc[:, i].values, m)[0, 1] / np.var(m) if np.var(m) > 0 else np.nan
+                        for i in range(1, df.shape[1])
+                    ], index=df.columns[1:], name="Beta")
+    
+                beta = calc_beta(log_returns)
                 stocklist = yf.download(tickers, start, end, auto_adjust=True)
-                prices = Close.iloc[-1][tickers].values
+                prices = stocklist['Close'].iloc[-1][tickers].values
                 value = units_arr * prices
                 weights = value / value.sum()
                 beta = round(beta, 2)
@@ -173,20 +121,20 @@ with tab1:
                 }, index=tickers)
     
                 # Download SP500 data
-                indexdata = yf.download(benchmark_ticker, start, end)
-                indexprice = indexdata['Close'].iloc[-1]
+                sp500 = yf.download('^GSPC', start, end)
+                sp500_price = sp500['Close'].iloc[-1]
     
                 # Compute SP500 weighted deltas
-                portfolio[f'{benchmark_name} Weighted Delta (point)'] = (portfolio['Beta'].astype(float)* portfolio['Price'].astype(float)* portfolio['Units'].astype(float)) / float(indexprice)
+                portfolio['SP500 Weighted Delta (point)'] = (portfolio['Beta'].astype(float)* portfolio['Price'].astype(float)* portfolio['Units'].astype(float)) / float(sp500_price)
     
-                portfolio[f'{benchmark_name} Weighted Delta (point)'] = portfolio[f'{benchmark_name} Weighted Delta (point)'].round(2)
-                portfolio[f'{benchmark_name} Weighted Delta (1%)'] = portfolio['Beta'] * portfolio['Price'] * portfolio['Units'] * 0.01
+                portfolio['SP500 Weighted Delta (point)'] = portfolio['SP500 Weighted Delta (point)'].round(2)
+                portfolio['SP500 Weighted Delta (1%)'] = portfolio['Beta'] * portfolio['Price'] * portfolio['Units'] * 0.01
     
                 # Round all numeric columns to 2 decimals
                 portfolio = portfolio.applymap(lambda x: round(x, 2) if isinstance(x, (float, int)) else x)
     
                 # Compute totals
-                totals = portfolio[['Current Value', f'{benchmark_name} Weighted Delta (point)', f'{benchmark_name} Weighted Delta (1%)']].sum()
+                totals = portfolio[['Current Value', 'SP500 Weighted Delta (point)', 'SP500 Weighted Delta (1%)']].sum()
                 portfolio.loc['Total'] = {
                     'Price': '',
                     'Units': '',
@@ -194,22 +142,18 @@ with tab1:
                     'Weights': '',
                     'Beta': '',
                     'Weighted Beta': '',
-                    f'{benchmark_name} Weighted Delta (point)': round(totals[f'{benchmark_name} Weighted Delta (point)'], 2),
-                    f'{benchmark_name} Weighted Delta (1%)': round(totals[f'{benchmark_name} Weighted Delta (1%)'], 2),
+                    'SP500 Weighted Delta (point)': round(totals['SP500 Weighted Delta (point)'], 2),
+                    'SP500 Weighted Delta (1%)': round(totals['SP500 Weighted Delta (1%)'], 2),
                 }
     
                 # Display
                 st.subheader("Portfolio Dashboard")
-                with st.expander("ℹ️ Information about Beta"):
-                    st.write("The beta is based on the chosen benchmark. When calculating beta, more weight is put on recent data.")
                 st.dataframe(portfolio)
     
                 sector_map = {}
                 for t in tickers:
                     try:
-                        ticker_obj = yf.Ticker(t)
-                        # Newer way: get_info() (instead of .info)
-                        info = ticker_obj.get_info()
+                        info = yf.Ticker(t).info
                         sector = info.get('sector', 'Unknown')
                         sector_map[t] = sector
                     except:
@@ -220,10 +164,10 @@ with tab1:
     
                 ##st.subheader("Sector Allocation")
                 fig_sector = go.Figure(data=[go.Pie(labels=sector_grouped.index, values=sector_grouped)])
-                ##st.plotly_chart(fig_sector)
+                ##st.plotly_chart(fig_sector, use_container_width=True)
     
                 # Compute monthly returns
-                monthly_prices = stocklist['Close'][tickers].resample('ME').last()
+                monthly_prices = stocklist['Close'][tickers].resample('M').last()
                 monthly_returns = monthly_prices.pct_change().dropna()
     
                 # Convert your existing sector_map (dict) into a pandas Series aligned to columns
@@ -237,7 +181,7 @@ with tab1:
                 fig_bar = go.Figure(data=[
                     go.Bar(x=sector_returns.columns, y=sector_returns.mean() * 100)])
                 fig_bar.update_layout(xaxis_title="Sector", yaxis_title="Return (%)")
-                ##st.plotly_chart(fig_bar)
+                ##st.plotly_chart(fig_bar, use_container_width=True)
     
                 col1, col2 = st.columns(2)
     
@@ -245,55 +189,24 @@ with tab1:
                     st.subheader("Sector Allocation")
                     fig_sector = go.Figure(
                         data=[go.Pie(labels=sector_grouped.index, values=sector_grouped)])
-                    st.plotly_chart(fig_sector)
+                    st.plotly_chart(fig_sector, use_container_width=True)
     
                 with col2:
                     st.subheader("Average Monthly Return by Sector (%)")
-                    st.plotly_chart(fig_bar)
+                    st.plotly_chart(fig_bar, use_container_width=True)
                     
                 
                 # --- Timeline Plot ---
-                st.subheader(f"Portfolio vs {benchmark_name} (Indexed to 100)")
-                
+                st.subheader(f"Portfolio vs {benchmark_name}")
                 close_prices = stocklist['Close'][tickers]
-                benchmark_data = yf.download(benchmark_ticker, start, end, multi_level_index=False)
-                
-                # Portfolio total value over time
-                portfolio_ts = (close_prices * units_arr).sum(axis=1).dropna()
-                
-                # Align dates (use only dates present in BOTH series)
-                common_dates = portfolio_ts.index.intersection(benchmark_data.index)
-                portfolio_ts = portfolio_ts.loc[common_dates]
-                index_ts = benchmark_data.loc[common_dates, 'Close'].dropna()
-                common_dates = portfolio_ts.index.intersection(index_ts.index)
-                portfolio_ts = portfolio_ts.loc[common_dates]
-                index_ts = index_ts.loc[common_dates]
-                
-                # Rebase both to 100 at the first common date
-                portfolio_idx = 100 * (portfolio_ts / portfolio_ts.iloc[0])
-                index_idx = 100 * (index_ts / index_ts.iloc[0])
-                
-                fig1 = go.Figure()
-                fig1.add_trace(go.Scatter(x=portfolio_idx.index, y=portfolio_idx, name="Portfolio"))
-                fig1.add_trace(go.Scatter(x=index_idx.index, y=index_idx, name=benchmark_name))
-                fig1.update_layout(
-                    title=f"Portfolio vs {benchmark_name} — Indexed (Start = 100)",
-                    xaxis_title="Date",
-                    yaxis_title="Index (Start = 100)",
-                    template="plotly_white",
-                )
-                st.plotly_chart(fig1)
-
-                # st.subheader(f"Portfolio vs {benchmark_name}")
-                # close_prices = stocklist['Close'][tickers]
-                # benchmark_data = yf.download(benchmark_ticker, start, end, multi_level_index = False)
-                # portfolio_ts = (close_prices * units_arr).sum(axis=1)
+                benchmark_data = yf.download(benchmark_ticker, start, end, multi_level_index = False)
+                portfolio_ts = (close_prices * units_arr).sum(axis=1)
     
-                # fig1 = make_subplots(specs=[[{"secondary_y": True}]])
-                # fig1.add_trace(go.Scatter(x=portfolio_ts.index, y=portfolio_ts, name="Portfolio"), secondary_y=False)
-                # fig1.add_trace(go.Scatter(x=benchmark_data.index, y=benchmark_data['Close'], name=benchmark_name), secondary_y=True)
-                # fig1.update_layout(title=f"Portfolio Value vs {benchmark_name}", template='plotly_white')
-                # st.plotly_chart(fig1)
+                fig1 = make_subplots(specs=[[{"secondary_y": True}]])
+                fig1.add_trace(go.Scatter(x=portfolio_ts.index, y=portfolio_ts, name="Portfolio"), secondary_y=False)
+                fig1.add_trace(go.Scatter(x=benchmark_data.index, y=benchmark_data['Close'], name=benchmark_name), secondary_y=True)
+                fig1.update_layout(title=f"Portfolio Value vs {benchmark_name}", template='plotly_white')
+                st.plotly_chart(fig1, use_container_width=True)
     
                 daily_change = np.log(portfolio_ts/portfolio_ts.shift(1)).dropna()
                 daily_mean_change = daily_change.mean()
@@ -303,42 +216,37 @@ with tab1:
                 st.write(f"• Mean Monthly Log Return: {monthly_mean_change * 100:.2f}%")
                 st.write(f"• Mean Yearly Log Return: {yearly_mean_change * 100:.2f}%")
     
-                dividends = {}  # keep this as the dictionary for results
+                dividends = {}
                 for t in tickers:
                     try:
-                        ticker_obj = yf.Ticker(t)
-                
-                        # Dividend history (Series indexed by date)
-                        div_history = ticker_obj.dividends   # ✅ use different variable name
-                
-                        if not div_history.empty:
-                            last_div = div_history.iloc[-1]   # most recent dividend per share
-                            div_amount = last_div
-                            total_dividend = div_amount * units.get(t, 0)
-                            
-                            # Approximate dividend yield = last dividend * 4 / current price (quarterly assumption)
-                            price = ticker_obj.history(period="1d")["Close"].iloc[-1]
-                            div_yield = (div_amount * 4) / price if price > 0 else 0
+                        info = yf.Ticker(t).info
+                        div_yield = info.get('dividendYield', 0)
+                        div_amount = info.get('dividendRate', 0)
+    
+            # Normalize yield if needed
+                        if div_yield:
+                            div_yield = div_yield / 100 if div_yield > 0 else div_yield
                         else:
-                            div_amount, total_dividend, div_yield = 0, 0, 0
-                
-                        # Store results
+                            div_yield = 0
+                            
+                        total_dividend = div_amount * units.get(t, 0) if div_amount else 0
+            # Store both
                         dividends[t] = {
                             'Dividend Yield': div_yield,
-                            'Dividend Amount ($)': div_amount,
+                            'Dividend Amount ($)': div_amount if div_amount else 0,
                             'Total Dividend ($)': total_dividend
                         }
-                
+    
                     except:
                         dividends[t] = {
                             'Dividend Yield': 0,
                             'Dividend Amount ($)': 0,
                             'Total Dividend ($)': 0
                         }
-                
-                # Convert to DataFrame
+    
+    # Convert to DataFrame
                 div_df = pd.DataFrame.from_dict(dividends, orient='index')
-                
+    
                 fig_div = go.Figure(go.Bar(
                     x=div_df.index,
                     y=div_df['Total Dividend ($)'],
@@ -346,7 +254,7 @@ with tab1:
                     textposition='outside',
                     marker_color='mediumseagreen'
                 ))
-                
+    
                 fig_div.update_layout(
                     xaxis_title="Ticker",
                     yaxis_title="Total Dividend ($)",
@@ -354,9 +262,9 @@ with tab1:
                     uniformtext_mode='hide',
                     template='plotly_white'
                 )
-                
+    
                 col5, col6 = st.columns(2)
-                
+    
                 with col5:
                     st.subheader("Dividend Summary")
                     st.dataframe(div_df.style.format({
@@ -364,21 +272,18 @@ with tab1:
                         "Dividend Amount ($)": "${:.2f}",
                         "Total Dividend ($)": "${:.2f}"
                     }))
-                
+                    
                 with col6:
                     st.subheader("Total Dividend Income per Ticker")
-                    st.plotly_chart(fig_div)
-
+                    st.plotly_chart(fig_div, use_container_width=True)
     
                 st.subheader("Company Financials")
-                
+    
                 financial_data = {}
                 
                 for t in tickers:
                     try:
-                        ticker_obj = yf.Ticker(t)
-                        info = ticker_obj.get_info()  # ✅ use get_info() instead of .info
-                
+                        info = yf.Ticker(t).info
                         financial_data[t] = {
                             "Market Cap ($)": info.get("marketCap", np.nan),
                             "Trailing EPS": info.get("trailingEps", np.nan),
@@ -391,8 +296,8 @@ with tab1:
                             "Gross Profits ($)": info.get("grossProfits", np.nan),
                             "Total Debt ($)": info.get("totalDebt", np.nan)
                         }
-                
-                    except Exception as e:
+                        
+                    except:
                         financial_data[t] = {
                             "Market Cap ($)": np.nan,
                             "Trailing EPS": np.nan,
@@ -405,12 +310,11 @@ with tab1:
                             "Gross Profits ($)": np.nan,
                             "Total Debt ($)": np.nan
                         }
-                
-                # Convert to DataFrame and format
+    
+    # Convert to DataFrame and format
                 fin_df = pd.DataFrame.from_dict(financial_data, orient="index")
                 fin_df["YOY Earnings Growth (%)"] = fin_df["YOY Earnings Growth (%)"] * 100
                 fin_df["YOY Revenue Growth (%)"] = fin_df["YOY Revenue Growth (%)"] * 100
-                
                 st.dataframe(
                     fin_df.style.format({
                         "Market Cap ($)": "${:,.0f}",
@@ -425,17 +329,17 @@ with tab1:
                         "Total Debt ($)": "${:,.0f}"
                     })
                 )
-
+    
     
                 st.subheader("Correlation Matrix (Returns)")
                 with st.expander("ℹ️ What is a correlation matrix?"):
-                    st.write("A correlation matrix displays how correlated each of your assets returns are to each other")
+                    st.write("A correlation matrix displays how correlated each of your assets are to each other")
                 correlation = log_returns[tickers].corr()
                 fig_corr = go.Figure(data=go.Heatmap(z=correlation.values,
                                                      x=correlation.columns,
                                                      y=correlation.columns,
                                                      colorscale='RdBu', zmin=-1, zmax=1))
-                st.plotly_chart(fig_corr)
+                st.plotly_chart(fig_corr, use_container_width=True)
                 
                 # --- VaR & CVaR ---
                 st.subheader("VaR, CVaR & Daily Returns")
@@ -465,7 +369,7 @@ with tab1:
                     line=dict(color="darkred", dash="dot"),
                     name="95% CVaR"
                 ))
-                st.plotly_chart(fig2)
+                st.plotly_chart(fig2, use_container_width=True)
     
                 st.write(f"95% VaR: {VaR_pct:.2f}%")
                 st.write(f"95% CVaR: {CVaR_pct:.2f}%")
@@ -481,35 +385,31 @@ with tab1:
                 fig5 = go.Figure()
                 fig5.add_trace(go.Scatter(x=drawdowns.index, y=drawdowns, name="Drawdowns"))
                 fig5.update_layout(template='plotly_white')
-                st.plotly_chart(fig5)
+                st.plotly_chart(fig5, use_container_width=True)
                 st.write(f"Max Drawdown: {drawdowns.min()*100:.2f}%")
     
                 # --- Sharpe Ratio ---
                 st.subheader("Sharpe Ratio")
                 with st.expander("ℹ️ What is Sharpe Ratio?"):
                     st.write("The Sharpe Ratio is the average return earned in excess of the risk-free rate per unit of volatility.")
-                    st.write("The risk-free rate of return used is the returns of the chosen benchmark for the given time period")
+                    st.write("The risk-free rate of return used is the returns of the S&P 500")
                 volatility = log_tfsa_returns.rolling(60).std()*np.sqrt(60)
-                benchmark_log_returns = np.log(Close[benchmark_ticker] / Close[benchmark_ticker].shift(1)).dropna()
-                total_return = np.exp(benchmark_log_returns.sum()) - 1
+                sp500_log_returns = np.log(Close['^GSPC'] / Close['^GSPC'].shift(1)).dropna()
+                total_return = np.exp(sp500_log_returns.sum()) - 1
                 num_years = (Close.index[-1] - Close.index[0]).days / 365
-                annual_benchmark_return = (1 + total_return)**(1/num_years) - 1
-                Rf = annual_benchmark_return / 252
+                annual_sp500_return = (1 + total_return)**(1/num_years) - 1
+                Rf = annual_sp500_return / 252
                 sharpe_ratio = (log_tfsa_returns.rolling(60).mean() - Rf) * 60 / volatility
     
                 fig3 = go.Figure()
                 fig3.add_trace(go.Scatter(x=sharpe_ratio.index, y=sharpe_ratio, name="Sharpe Ratio"))
                 fig3.update_layout(template="plotly_white")
-                st.plotly_chart(fig3)
+                st.plotly_chart(fig3, use_container_width=True)
     
                 # --- Portfolio Optimization ---
                 #st.subheader("Portfolio Optimization")
-                mu = expected_returns.ema_historical_return(
-                    stocklist['Close'][tickers],
-                    span=90)
-                S = risk_models.exp_cov(
-                    stocklist['Close'][tickers],
-                    span=90)
+                mu = expected_returns.mean_historical_return(stocklist['Close'][tickers])
+                S = risk_models.sample_cov(stocklist['Close'][tickers])
                 ef = EfficientFrontier(mu, S)
                 optimal_weights = ef.max_sharpe()
                 cleaned_weights = ef.clean_weights()
@@ -523,7 +423,7 @@ with tab1:
                 fig5.add_trace(go.Bar(x=comparison_df.index, y=comparison_df['Current Weight'], name="Current"))
                 fig5.add_trace(go.Bar(x=comparison_df.index, y=comparison_df['Optimal Weight'], name="Optimal"))
                 fig5.update_layout(barmode="group", title="Weight Comparison", template="plotly_white")
-                #st.plotly_chart(fig5)
+                #st.plotly_chart(fig5, use_container_width=True)
     
                 current_value = value.sum()
                 opt_val = current_value * pd.Series(cleaned_weights)
@@ -537,14 +437,12 @@ with tab1:
     
                 with col3:
                     st.subheader("Portfolio Optimization")
-                    st.plotly_chart(fig5)
+                    st.plotly_chart(fig5, use_container_width=True)
     
                 with col4:
                     st.subheader("Suggested Rebalancing")
                     st.dataframe(rebalance_df)
-                    
-                with st.expander("ℹ️ Information about Portfolio Optimization"):
-                    st.write("While the model use all of the data of the given period, it puts more weight on recent data")
+    
                 # --- Monte Carlo Simulation ---
                 st.subheader("Monte Carlo Simulation")
                 daily_std = log_tfsa_returns.std()
@@ -564,7 +462,7 @@ with tab1:
                     fig4.add_trace(go.Scatter(x=np.arange(t_intervals), y=price_list[:, i], line=dict(width=1), showlegend=False))
                 fig4.add_trace(go.Scatter(x=np.arange(t_intervals), y=price_list.mean(axis=1), name="Average Path", line=dict(color='black', dash='dash')))
                 fig4.update_layout(template="plotly_white")
-                st.plotly_chart(fig4)
+                st.plotly_chart(fig4, use_container_width=True)
     
                 # --- LSTM Forecast ---
                 st.subheader("LSTM Forecast")
@@ -611,21 +509,16 @@ with tab1:
 
 with tab2:
     NEWS_API_KEY = "80f3080a10da4d91809c5e53cf0d9828"
-    colq1, colq2, colq3 = st.columns([2, 1, 1])
-    with colq1:
-        query = st.text_input("Search query", value="US Treasury yields OR bond market OR Federal Reserve")
-    with colq2:
-        page_size = st.number_input("Articles to show", min_value=3, max_value=30, value=10, step=1)
-    with colq3:
-        sort_by = st.selectbox("Sort by", ["Date", "Relevancy", "Popularity"], index=0)
+    st.subheader("Latest News on Bonds, Rates & Macro")
 
-    use_dates = st.toggle("Filter by date range", value=False)
+    query = st.text_input("Search query", value="US Treasury yields OR bond market OR Federal Reserve")
+    page_size = st.number_input("Articles to show", min_value=3, max_value=30, value=10, step=1)
+    sort_by = st.selectbox("Sort by", ["publishedAt", "relevancy", "popularity"], index=0)
+
+    use_dates = st.checkbox("Filter by date range", value=False)
     if use_dates:
-        c1, c2 = st.columns(2)
-        with c1:
-            from_date = st.date_input("From date", value=dt.date.today() - dt.timedelta(days=30), key="news_from")
-        with c2:
-            to_date = st.date_input("To date", value=dt.date.today(), key="news_to")
+        from_date = st.date_input("From date", value=dt.date.today() - dt.timedelta(days=30))
+        to_date = st.date_input("To date", value=dt.date.today())
         if from_date > to_date:
             st.warning("'From date' must be on or before 'To date'.")
     else:
@@ -639,30 +532,7 @@ with tab2:
     elif not articles:
         st.info("No articles found. Try adjusting your query or date range.")
     else:
-        compact = st.toggle("Compact view", value=False)
+        compact = st.checkbox("Compact view", value=False)
         for a in articles:
-            title = a.get("title") or "Untitled"
-            url = a.get("url") or ""
-            source = (a.get("source") or {}).get("name") or "Unknown source"
-            published = (a.get("Date") or "")[:10]
-            desc = a.get("description") or ""
-            thumb = a.get("urlToImage")
-
-            if compact:
-                st.markdown(f"- **[{title}]({url})** — {source} · {published}")
-            else:
-                with st.container(border=True):
-                    if thumb:
-                        colA, colB = st.columns([1, 3])
-                        with colA:
-                            st.image(thumb)
-                        with colB:
-                            st.markdown(f"### [{title}]({url})")
-                            st.caption(f"{source} · {published}")
-                            if desc:
-                                st.write(desc)
-                    else:
-                        st.markdown(f"### [{title}]({url})")
-                        st.caption(f"{source} · {published}")
-                        if desc:
-                            st.write(desc)
+            # Your article rendering code here
+            pass
