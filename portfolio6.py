@@ -579,7 +579,7 @@ with tab1:
                 # --- GUARDRAIL 1: Check if we have enough total months ---
                 # We need at least (seq_length + 1) to create ONE training sample.
                 if len(monthly_returns) <= seq_length:
-                    st.warning(f"⚠️ **Insufficient Data for LSTM:** Your portfolio selection (likely due to the inception date of tickers like XCHP.TO) only provides {len(monthly_returns)} months of overlapping data. We need at least {seq_length + 1} months.")
+                    st.warning(f"⚠️ **Insufficient Data for LSTM:** Your portfolio selection (likely due to the inception date of newer tickers) only provides {len(monthly_returns)} months of overlapping data. We need at least {seq_length + 1} months.")
                 else:
                     # Align weights with the actual columns available in monthly_returns
                     weights_series = pd.Series(weights, index=tickers)
