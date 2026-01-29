@@ -566,48 +566,82 @@ with tab1:
                 fig4.update_layout(template="plotly_white")
                 st.plotly_chart(fig4, use_container_width=True)
     
-                # --- LSTM Forecast ---
+# --- LSTM Forecast ---
                 st.subheader("LSTM Forecast")
+                
+                # 1. Prepare monthly data
                 monthly_prices = stocklist.Close.resample('ME').last()
                 monthly_returns = monthly_prices.pct_change().dropna()
-                weights_series = pd.Series(weights, index=tickers)
-                weights_arr = np.array([weights_series[i] if i in monthly_returns.columns else 0 for i in tickers])
-                portfolio_monthly_returns = monthly_returns.dot(weights_arr)
-    
-                def create_sequences(data, seq_length=12):
-                    X, y = [], []
-                    for i in range(len(data) - seq_length):
-                        X.append(data[i:i+seq_length])
-                        y.append(data[i+seq_length])
-                    return np.array(X), np.array(y)
-    
+                
+                # Define sequence length (12 months)
                 seq_length = 12
-                returns_values = portfolio_monthly_returns.values
-                X, y = create_sequences(returns_values)
-                scaler_X, scaler_y = MinMaxScaler(), MinMaxScaler()
-                X_scaled = scaler_X.fit_transform(X.reshape(-1, 1)).reshape(X.shape)
-                y_scaled = scaler_y.fit_transform(y.reshape(-1, 1))
-                split = int(0.8 * len(X_scaled))
-                X_train, X_val = X_scaled[:split], X_scaled[split:]
-                y_train, y_val = y_scaled[:split], y_scaled[split:]
-    
-                model = Sequential([
-                    Input(shape=(seq_length, 1)),
-                    LSTM(64, return_sequences=True),
-                    Dropout(0.2),
-                    LSTM(32),
-                    Dense(1)
-                ])
-                model.compile(optimizer='adam', loss='mse')
-                model.fit(X_train, y_train, validation_data=(X_val, y_val),
-                          epochs=100, batch_size=4, callbacks=[EarlyStopping(patience=5, restore_best_weights=True)], verbose=0)
-    
-                last_seq = returns_values[-seq_length:]
-                last_seq_scaled = scaler_X.transform(last_seq.reshape(-1, 1)).reshape(1, seq_length, 1)
-                pred_scaled = model.predict(last_seq_scaled)
-                predicted_return = scaler_y.inverse_transform(pred_scaled)
-    
-                st.success(f"Predicted Return Next Month: **{predicted_return[0][0]:.2%}**")
+
+                # --- GUARDRAIL 1: Check if we have enough total months ---
+                # We need at least (seq_length + 1) to create ONE training sample.
+                if len(monthly_returns) <= seq_length:
+                    st.warning(f"⚠️ **Insufficient Data for LSTM:** Your portfolio selection (likely due to the inception date of tickers like XCHP.TO) only provides {len(monthly_returns)} months of overlapping data. We need at least {seq_length + 1} months.")
+                else:
+                    # Align weights with the actual columns available in monthly_returns
+                    weights_series = pd.Series(weights, index=tickers)
+                    weights_arr = np.array([weights_series[i] if i in monthly_returns.columns else 0 for i in monthly_returns.columns])
+                    
+                    portfolio_monthly_returns = monthly_returns.dot(weights_arr)
+                    
+                    def create_sequences(data, seq_length=12):
+                        X, y = [], []
+                        for i in range(len(data) - seq_length):
+                            X.append(data[i:i+seq_length])
+                            y.append(data[i+seq_length])
+                        return np.array(X), np.array(y)
+        
+                    returns_values = portfolio_monthly_returns.values
+                    X, y = create_sequences(returns_values, seq_length=seq_length)
+                    
+                    # --- GUARDRAIL 2: Check if sequences were actually created ---
+                    if X.size == 0:
+                        st.error("❌ The sequence generator returned an empty set. Try extending your 'Start Date' further back.")
+                    else:
+                        try:
+                            scaler_X, scaler_y = MinMaxScaler(), MinMaxScaler()
+                            
+                            # Fit and transform
+                            X_scaled = scaler_X.fit_transform(X.reshape(-1, 1)).reshape(X.shape)
+                            y_scaled = scaler_y.fit_transform(y.reshape(-1, 1))
+                            
+                            # --- GUARDRAIL 3: Ensure we have enough samples for an 80/20 split ---
+                            split = int(0.8 * len(X_scaled))
+                            if split == 0:
+                                # Fallback: if data is too small for 80/20, use all for train and last for val
+                                X_train, X_val = X_scaled, X_scaled
+                                y_train, y_val = y_scaled, y_scaled
+                            else:
+                                X_train, X_val = X_scaled[:split], X_scaled[split:]
+                                y_train, y_val = y_scaled[:split], y_scaled[split:]
+                
+                            # Build and train the model
+                            model = Sequential([
+                                Input(shape=(seq_length, 1)),
+                                LSTM(64, return_sequences=True),
+                                Dropout(0.2),
+                                LSTM(32),
+                                Dense(1)
+                            ])
+                            model.compile(optimizer='adam', loss='mse')
+                            model.fit(X_train, y_train, validation_data=(X_val, y_val),
+                                      epochs=100, batch_size=4, 
+                                      callbacks=[EarlyStopping(patience=5, restore_best_weights=True)], 
+                                      verbose=0)
+                
+                            # Forecast the next month
+                            last_seq = returns_values[-seq_length:]
+                            last_seq_scaled = scaler_X.transform(last_seq.reshape(-1, 1)).reshape(1, seq_length, 1)
+                            pred_scaled = model.predict(last_seq_scaled)
+                            predicted_return = scaler_y.inverse_transform(pred_scaled)
+                
+                            st.success(f"Predicted Return Next Month: **{predicted_return[0][0]:.2%}**")
+                            
+                        except Exception as e:
+                            st.error(f"🏗️ **Model Training Error:** {e}")
 
 with tab2:
     NEWS_API_KEY = "80f3080a10da4d91809c5e53cf0d9828"
