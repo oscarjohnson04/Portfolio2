@@ -303,26 +303,22 @@ with tab1:
                 st.write(f"• Mean Monthly Log Return: {monthly_mean_change * 100:.2f}%")
                 st.write(f"• Mean Yearly Log Return: {yearly_mean_change * 100:.2f}%")
     
-                dividends = {}  # keep this as the dictionary for results
+               dividends = {}
                 for t in tickers:
                     try:
                         ticker_obj = yf.Ticker(t)
-                
-                        # Dividend history (Series indexed by date)
-                        div_history = ticker_obj.dividends   # ✅ use different variable name
+                        div_history = ticker_obj.dividends
                 
                         if not div_history.empty:
-                            last_div = div_history.iloc[-1]   # most recent dividend per share
+                            last_div = float(div_history.iloc[-1])      # ← explicit float cast
                             div_amount = last_div
                             total_dividend = div_amount * units.get(t, 0)
-                            
-                            # Approximate dividend yield = last dividend * 4 / current price (quarterly assumption)
-                            price = ticker_obj.history(period="1d")["Close"].iloc[-1]
-                            div_yield = (div_amount * 4) / price if price > 0 else 0
-                        else:
-                            div_amount, total_dividend, div_yield = 0, 0, 0
                 
-                        # Store results
+                            price = ticker_obj.history(period="1d")["Close"].iloc[-1]
+                            div_yield = (div_amount * 4) / float(price) if float(price) > 0 else 0.0
+                        else:
+                            div_amount, total_dividend, div_yield = 0.0, 0.0, 0.0
+                
                         dividends[t] = {
                             'Dividend Yield': div_yield,
                             'Dividend Amount ($)': div_amount,
@@ -331,13 +327,15 @@ with tab1:
                 
                     except:
                         dividends[t] = {
-                            'Dividend Yield': 0,
-                            'Dividend Amount ($)': 0,
-                            'Total Dividend ($)': 0
+                            'Dividend Yield': 0.0,
+                            'Dividend Amount ($)': 0.0,
+                            'Total Dividend ($)': 0.0
                         }
                 
-                # Convert to DataFrame
                 div_df = pd.DataFrame.from_dict(dividends, orient='index')
+                
+                # ← Coerce to numeric — catches any stray None/NA that slipped through
+                div_df = div_df.apply(pd.to_numeric, errors='coerce').fillna(0.0)
                 
                 fig_div = go.Figure(go.Bar(
                     x=div_df.index,
