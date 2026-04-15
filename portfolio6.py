@@ -303,7 +303,7 @@ with tab1:
                 st.write(f"• Mean Monthly Log Return: {monthly_mean_change * 100:.2f}%")
                 st.write(f"• Mean Yearly Log Return: {yearly_mean_change * 100:.2f}%")
     
-               dividends = {}
+                dividends = {}
                 for t in tickers:
                     try:
                         ticker_obj = yf.Ticker(t)
