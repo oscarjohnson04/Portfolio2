@@ -487,13 +487,19 @@ with tab1:
                 with st.expander("ℹ️ What is Sharpe Ratio?"):
                     st.write("The Sharpe Ratio is the average return earned in excess of the risk-free rate per unit of volatility.")
                     st.write("The risk-free rate of return used is the returns of the chosen benchmark for the given time period")
-                volatility = log_tfsa_returns.rolling(60).std()*np.sqrt(60)
+                sharpe_window = st.select_slider(
+                    "Rolling window (trading days)",
+                    options=[21, 42, 63, 126, 252],
+                    value=63,
+                    format_func=lambda x: {21: "1 month", 42: "2 months", 63: "3 months", 126: "6 months", 252: "1 year"}[x]
+                )
+                volatility = log_tfsa_returns.rolling(sharpe_window).std() * np.sqrt(sharpe_window)
                 benchmark_log_returns = np.log(Close[benchmark_ticker] / Close[benchmark_ticker].shift(1)).dropna()
                 total_return = np.exp(benchmark_log_returns.sum()) - 1
                 num_years = (Close.index[-1] - Close.index[0]).days / 365
                 annual_benchmark_return = (1 + total_return)**(1/num_years) - 1
                 Rf = annual_benchmark_return / 252
-                sharpe_ratio = (log_tfsa_returns.rolling(60).mean() - Rf) * 60 / volatility
+                sharpe_ratio = (log_tfsa_returns.rolling(sharpe_window).mean() - Rf) * sharpe_window / volatility
     
                 fig3 = go.Figure()
                 fig3.add_trace(go.Scatter(x=sharpe_ratio.index, y=sharpe_ratio, name="Sharpe Ratio"))
@@ -516,33 +522,111 @@ with tab1:
                     'Current Weight': weights,
                     'Optimal Weight': pd.Series(cleaned_weights)
                 })
-    
+                
                 fig5 = go.Figure()
                 fig5.add_trace(go.Bar(x=comparison_df.index, y=comparison_df['Current Weight'], name="Current"))
                 fig5.add_trace(go.Bar(x=comparison_df.index, y=comparison_df['Optimal Weight'], name="Optimal"))
                 fig5.update_layout(barmode="group", title="Weight Comparison", template="plotly_white")
-                #st.plotly_chart(fig5, use_container_width=True)
-    
+                
                 current_value = value.sum()
                 opt_val = current_value * pd.Series(cleaned_weights)
                 opt_units = opt_val / prices
                 rebalance_units = opt_units - units_arr
                 rebalance_df = pd.DataFrame({'Units needed to reach optimal portfolio': rebalance_units.round(2)}, index=tickers)
-                #st.subheader("Suggested Rebalancing")
-                #st.dataframe(rebalance_df)
-    
+                
+                # --- Efficient Frontier ---
+                frontier_returns = []
+                frontier_vols = []
+                n_points = 80
+                ret_min = float(mu.min())
+                ret_max = float(mu.max())
+                target_returns = np.linspace(ret_min, ret_max, n_points)
+                for target in target_returns:
+                    try:
+                        ef_point = EfficientFrontier(mu, S)
+                        ef_point.efficient_return(target)
+                        pf = ef_point.portfolio_performance()
+                        frontier_vols.append(pf[1])
+                        frontier_returns.append(pf[0])
+                    except Exception:
+                        continue
+                
+                # Current portfolio performance
+                ef_current = EfficientFrontier(mu, S)
+                ef_current.set_weights(dict(zip(tickers, weights)))
+                current_perf = ef_current.portfolio_performance()
+                
+                # Optimal (max Sharpe) performance
+                ef_optimal = EfficientFrontier(mu, S)
+                ef_optimal.max_sharpe()
+                optimal_perf = ef_optimal.portfolio_performance()
+                
+                # Min volatility performance
+                ef_minvol = EfficientFrontier(mu, S)
+                ef_minvol.min_volatility()
+                minvol_perf = ef_minvol.portfolio_performance()
+                
+                fig_ef = go.Figure()
+                fig_ef.add_trace(go.Scatter(
+                    x=frontier_vols, y=frontier_returns,
+                    mode='lines', name='Efficient frontier',
+                    line=dict(color='royalblue', width=2)
+                ))
+                fig_ef.add_trace(go.Scatter(
+                    x=[current_perf[1]], y=[current_perf[0]],
+                    mode='markers', name='Current portfolio',
+                    marker=dict(color='orange', size=12, symbol='diamond',
+                                line=dict(color='darkorange', width=1.5))
+                ))
+                fig_ef.add_trace(go.Scatter(
+                    x=[optimal_perf[1]], y=[optimal_perf[0]],
+                    mode='markers', name=f'Max Sharpe (SR={optimal_perf[2]:.2f})',
+                    marker=dict(color='green', size=12, symbol='star',
+                                line=dict(color='darkgreen', width=1.5))
+                ))
+                fig_ef.add_trace(go.Scatter(
+                    x=[minvol_perf[1]], y=[minvol_perf[0]],
+                    mode='markers', name='Min volatility',
+                    marker=dict(color='red', size=12, symbol='circle',
+                                line=dict(color='darkred', width=1.5))
+                ))
+                # Individual assets
+                for i, t in enumerate(tickers):
+                    asset_vol = float(np.sqrt(S.loc[t, t]))
+                    asset_ret = float(mu[t])
+                    fig_ef.add_trace(go.Scatter(
+                        x=[asset_vol], y=[asset_ret],
+                        mode='markers+text', name=t,
+                        text=[t], textposition='top center',
+                        marker=dict(size=8, symbol='square'),
+                        showlegend=False
+                    ))
+                fig_ef.update_layout(
+                    title="Efficient Frontier",
+                    xaxis_title="Annualised Volatility",
+                    yaxis_title="Annualised Return",
+                    template="plotly_white",
+                    legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1)
+                )
+                
                 col3, col4 = st.columns(2)
-    
+                
                 with col3:
                     st.subheader("Portfolio Optimization")
                     st.plotly_chart(fig5, use_container_width=True)
-    
+                
                 with col4:
                     st.subheader("Suggested Rebalancing")
                     st.dataframe(rebalance_df)
-                    
+                
+                st.subheader("Efficient Frontier")
+                with st.expander("ℹ️ What is the Efficient Frontier?"):
+                    st.write("Each point on the curve is the maximum return achievable for a given level of volatility. "
+                             "Points below the curve are suboptimal — you could get more return for the same risk, or less risk for the same return.")
+                st.plotly_chart(fig_ef, use_container_width=True)
+                
                 with st.expander("ℹ️ Information about Portfolio Optimization"):
-                    st.write("While the model use all of the data of the given period, it puts more weight on recent data")
+                    st.write("While the model uses all of the data for the given period, it puts more weight on recent data")
                 # --- Monte Carlo Simulation ---
                 st.subheader("Monte Carlo Simulation")
                 daily_std = log_tfsa_returns.std()
