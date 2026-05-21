@@ -487,19 +487,13 @@ with tab1:
                 with st.expander("ℹ️ What is Sharpe Ratio?"):
                     st.write("The Sharpe Ratio is the average return earned in excess of the risk-free rate per unit of volatility.")
                     st.write("The risk-free rate of return used is the returns of the chosen benchmark for the given time period")
-                sharpe_window = st.select_slider(
-                    "Rolling window (trading days)",
-                    options=[21, 42, 63, 126, 252],
-                    value=63,
-                    format_func=lambda x: {21: "1 month", 42: "2 months", 63: "3 months", 126: "6 months", 252: "1 year"}[x]
-                )
-                volatility = log_tfsa_returns.rolling(sharpe_window).std() * np.sqrt(sharpe_window)
+                volatility = log_tfsa_returns.rolling(60).std()*np.sqrt(60)
                 benchmark_log_returns = np.log(Close[benchmark_ticker] / Close[benchmark_ticker].shift(1)).dropna()
                 total_return = np.exp(benchmark_log_returns.sum()) - 1
                 num_years = (Close.index[-1] - Close.index[0]).days / 365
                 annual_benchmark_return = (1 + total_return)**(1/num_years) - 1
                 Rf = annual_benchmark_return / 252
-                sharpe_ratio = (log_tfsa_returns.rolling(sharpe_window).mean() - Rf) * sharpe_window / volatility
+                sharpe_ratio = (log_tfsa_returns.rolling(60).mean() - Rf) * 60 / volatility
     
                 fig3 = go.Figure()
                 fig3.add_trace(go.Scatter(x=sharpe_ratio.index, y=sharpe_ratio, name="Sharpe Ratio"))
