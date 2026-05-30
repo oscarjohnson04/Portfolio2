@@ -141,17 +141,28 @@ with tab1:
     
         # --- Beta calculation (explicit benchmark reference) ---
                 def calc_beta(returns_df, benchmark_col, span=90):
-                    m = returns_df[benchmark_col].values
                     betas = {}
+                    bench = returns_df[benchmark_col]
                     for t in returns_df.columns:
                         if t != benchmark_col:
-                            # Combine into one DataFrame
-                            df_temp = returns_df[[benchmark_col, t]]
-                            # Calculate EWM covariance and variance
-                            cov = df_temp[benchmark_col].ewm(span=span).cov(df_temp[t])
-                            var = df_temp[benchmark_col].ewm(span=span).var()
-                            # Take the latest values (last row)
-                            betas[t] = cov.iloc[-1] / var.iloc[-1] if var.iloc[-1] > 0 else np.nan
+                            asset = returns_df[t]
+                            # Drop NaNs from both series jointly before computing EWM
+                            combined = pd.concat([bench, asset], axis=1).dropna()
+                            if len(combined) < 2:
+                                betas[t] = np.nan
+                                continue
+                            b = combined.iloc[:, 0]
+                            a = combined.iloc[:, 1]
+                            cov = b.ewm(span=span, min_periods=1).cov(a)
+                            var = b.ewm(span=span, min_periods=1).var()
+                            # Guard against empty or all-NaN results
+                            cov_val = cov.dropna()
+                            var_val = var.dropna()
+                            if cov_val.empty or var_val.empty:
+                                betas[t] = np.nan
+                            else:
+                                last_var = var_val.iloc[-1]
+                                betas[t] = cov_val.iloc[-1] / last_var if last_var > 0 else np.nan
                     return pd.Series(betas, name="Beta")
         
 
